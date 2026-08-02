@@ -56,6 +56,9 @@
 
 .nutrition-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.nutrition-controls .btn{min-width:150px}.nutrition-table-wrap,.nutrition-compare-table{overflow:auto}.nutrition-table{min-width:920px}.nutrition-table input,.nutrition-table textarea{width:100%;min-width:92px}.nutrition-table textarea{min-width:220px;min-height:44px;resize:vertical;font-weight:500}.nutrition-table td{vertical-align:top}.nutrition-table .day-name{white-space:nowrap}.nutrition-table .date-cell{white-space:nowrap;color:var(--dim)}.nutrition-unit{font-size:10px;color:var(--faint);font-weight:900;margin-left:3px}.nutrition-delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:900}.nutrition-delta.up{color:#fff}.nutrition-delta.down{color:#ffe082}.nutrition-delta.flat{color:var(--dim)}.nutrition-compare-table{margin-top:14px}.nutrition-compare-table table{min-width:850px}.nutrition-compare-table td{white-space:nowrap}.nutrition-missing{font-size:11px;color:var(--warn);margin-top:5px}.nutrition-note{font-size:11px;color:var(--dim);line-height:1.4}.nutrition-total-main{display:block;font-size:14px;font-weight:900}.nutrition-total-sub{display:block;margin-top:3px}@media(max-width:640px){.nutrition-controls{display:grid;grid-template-columns:1fr}.nutrition-controls .selectbox,.nutrition-controls .btn{width:100%}.nutrition-controls .selectbox{justify-content:space-between}}
 
+
+.compact-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;background:linear-gradient(135deg,#162642,#1d3156);border-color:#3c5588}.food-hero{background:linear-gradient(135deg,#1a2c3c,#21465b)}.body-hero{background:linear-gradient(135deg,#1a2746,#263467)}.eyebrow{font-size:11px;color:#9ec1ff;text-transform:uppercase;letter-spacing:.12em;font-weight:900;margin-bottom:6px}.hero-title{margin:0 0 8px 0;font-size:24px;line-height:1.1}.hero-copy{margin:0;color:#c7d6ef;max-width:760px}.hero-badge{white-space:nowrap;border:1px solid #5471a8;background:#0f1b31;border-radius:999px;padding:12px 16px;font-size:12px;font-weight:900;color:#f4f7ff}.dashboard-intro{margin-bottom:14px}.sport-compare-positive{color:#8fd7a5}.sport-compare-negative{color:#ffd98a}.table-note{font-size:12px;color:var(--dim)}#sportWeeklyTable td,#bodyWeeklyTable td,#sportWeeklyTable th,#bodyWeeklyTable th{white-space:nowrap}@media(max-width:760px){.compact-hero{flex-direction:column;align-items:flex-start}.hero-title{font-size:20px}.hero-badge{white-space:normal}}
+
 </style>
 </head>
 <body>
@@ -71,7 +74,7 @@
 <div class="app locked" id="app">
 <div class="wrap">
 <header class="top"><div class="brand"><div class="mark">JT</div><div><div class="name">Joaking Team</div><div class="client">Plan de Borja</div></div></div><div class="badge" id="statusBadge">bloqueado</div></header>
-<nav class="tabs" aria-label="Secciones"><button data-tab="rutina" class="active">Rutina</button><button data-tab="resumen">Resumen</button><button data-tab="calorias">Calorías</button><button data-tab="dieta">Dieta</button><button data-tab="suplementos">Suplementos</button><button data-tab="notas">Notas</button><button data-tab="ajustes">Ajustes</button></nav>
+<nav class="tabs" aria-label="Secciones"><button data-tab="rutina" class="active">Entrenamiento</button><button data-tab="resumen">Deporte</button><button data-tab="calorias">Alimentación</button><button data-tab="dieta">Composición</button><button data-tab="ajustes">Ajustes</button></nav>
 
 <section class="panel active" id="panel-rutina">
   <div class="notice blue"><b>Objetivo vs resultado:</b> el objetivo queda fijo en cada ejercicio; tú registras herramienta, peso y repeticiones reales. No hay botón de borrar y las importaciones se fusionan para no machacar datos. Desde la semana 2 verás encima de cada serie lo hecho en la semana anterior.</div>
@@ -100,8 +103,47 @@
 </section>
 
 <section class="panel" id="panel-resumen">
-  <h2 class="section-title">Resumen general</h2><div class="card"><div class="summary-grid" id="globalSummary"></div></div>
-  <h2 class="section-title">Kcal de comida · comparación semanal</h2>
+  <div class="dashboard-intro card compact-hero">
+    <div>
+      <div class="eyebrow">Solo deporte</div>
+      <h2 class="hero-title">Resumen deportivo simple y comparativo</h2>
+      <p class="hero-copy">Aquí solo verás datos ligados al entrenamiento y a la caminata: calorías quemadas, pulsaciones y evolución semanal.</p>
+    </div>
+    <div class="hero-badge">Kcal · LPM · Caminata</div>
+  </div>
+  <h2 class="section-title">Semana más reciente</h2>
+  <div class="card"><div class="summary-grid" id="sportSummary"></div></div>
+  <h2 class="section-title">Comparativa de semanas</h2>
+  <div class="card">
+    <div class="body-compare-controls">
+      <div class="selectbox"><label>Semana A</label><select id="sportCompareA"></select></div>
+      <div class="selectbox"><label>Semana B</label><select id="sportCompareB"></select></div>
+    </div>
+    <div class="summary-grid" id="sportCompareSummary"></div>
+  </div>
+  <h2 class="section-title">Histórico semanal</h2>
+  <div class="card" style="overflow:auto"><table id="sportWeeklyTable"><thead><tr><th>Semana</th><th>Kcal activas</th><th>Kcal deporte</th><th>Puls. mín. sueño</th><th>Puls. máx. entreno</th><th>Tiempo caminando</th><th>LPM caminata</th><th>Días caminados</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="panel" id="panel-calorias">
+  <div class="dashboard-intro card compact-hero food-hero">
+    <div>
+      <div class="eyebrow">Solo alimentación</div>
+      <h2 class="hero-title">Kcal y macros por semana</h2>
+      <p class="hero-copy">Registra la comida de cada semana y compárala con las anteriores sin mezclarla con el gasto del deporte.</p>
+    </div>
+    <div class="hero-badge">Kcal · Proteína · Hidratos · Grasa</div>
+  </div>
+  <h2 class="section-title">Semana editable</h2>
+  <div class="card">
+    <div class="nutrition-controls">
+      <div class="selectbox"><label>Semana</label><select id="nutritionWeekSelect"></select></div>
+      <div class="selectbox"><label>Inicio</label><input id="nutritionStartDate" type="date"></div>
+      <button class="btn" id="addNutritionWeekBtn">+ Añadir semana</button>
+    </div>
+    <div class="summary-grid" id="nutritionWeekSummary"></div>
+  </div>
+  <h2 class="section-title">Comparación rápida</h2>
   <div class="card">
     <div class="body-compare-controls">
       <div class="selectbox"><label>Semana A</label><select id="nutritionCompareA"></select></div>
@@ -110,9 +152,23 @@
     <div class="summary-grid" id="nutritionCompareSummary"></div>
     <div class="nutrition-compare-table"><table id="nutritionWeeklyTable"><thead><tr><th>Semana</th><th>Periodo</th><th>Kcal totales</th><th>Media/día</th><th>Cambio</th><th>Proteína registrada</th><th>Hidratos registrados</th><th>Grasa registrada</th></tr></thead><tbody></tbody></table></div>
   </div>
-  <h2 class="section-title">Comparativa visual · cuerpo frontal</h2>
+  <h2 class="section-title">Detalle diario</h2>
+  <div class="card nutrition-table-wrap"><table id="nutritionTable" class="nutrition-table"><thead><tr><th>Día</th><th>Fecha</th><th>Kcal comida</th><th>Proteína</th><th>Hidratos</th><th>Grasa</th><th>Nota</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="panel" id="panel-dieta">
+  <div class="dashboard-intro card compact-hero body-hero">
+    <div>
+      <div class="eyebrow">Solo composición corporal</div>
+      <h2 class="hero-title">Medidas, peso y comparación visual</h2>
+      <p class="hero-copy">Compara semanas de medición, revisa los cambios en peso y perímetros y visualiza la evolución del cuerpo de forma más clara.</p>
+    </div>
+    <div class="hero-badge">Peso · Perímetros · Evolución</div>
+  </div>
+  <h2 class="section-title">Última medición</h2>
+  <div class="card"><div class="summary-grid" id="bodySummary"></div></div>
+  <h2 class="section-title">Comparación visual</h2>
   <div class="card">
-    <div class="notice blue"><b>Semana 0:</b> es tu medición base. Elige dos semanas para comparar el aspecto visual y las diferencias de perímetros. La figura es una representación proporcional en frontal basada en tus medidas y una altura de <b>1,73 m</b>.</div>
     <div class="body-compare-controls">
       <div class="selectbox"><label>Semana A</label><select id="bodyWeekA"></select></div>
       <div class="selectbox"><label>Semana B</label><select id="bodyWeekB"></select></div>
@@ -120,38 +176,18 @@
     <div class="body-compare-grid">
       <div class="body-card">
         <div class="body-card-title" id="bodyCardATitle">Semana A</div>
-        <div class="body-model-realistic"><svg id="bodySvgA" viewBox="0 0 240 500" aria-label="Cuerpo semana A"></svg></div>
+        <div class="body-model-realistic"><svg id="bodySvgA" viewBox="0 0 420 640" aria-label="Cuerpo semana A"></svg></div>
         <div class="body-labels" id="bodyLabelsA"></div>
       </div>
       <div class="body-card">
         <div class="body-card-title" id="bodyCardBTitle">Semana B</div>
-        <div class="body-model-realistic"><svg id="bodySvgB" viewBox="0 0 240 500" aria-label="Cuerpo semana B"></svg></div>
+        <div class="body-model-realistic"><svg id="bodySvgB" viewBox="0 0 420 640" aria-label="Cuerpo semana B"></svg></div>
         <div class="body-labels" id="bodyLabelsB"></div>
       </div>
     </div>
   </div>
-  <h2 class="section-title">Evolución por semana</h2><div class="card" style="overflow:auto"><table id="weeklyTable"><thead><tr><th>Semana</th><th>Media mín.</th><th>Media máx.</th><th>LPM caminata</th><th>Tiempo caminando</th><th>Días caminados</th><th>Kcal activas</th><th>Kcal deporte</th><th>Peso</th><th>Cuello</th><th>Brazo</th><th>Cintura</th><th>Abdomen relajado</th><th>Cadera</th><th>Muslo</th></tr></thead><tbody></tbody></table></div>
-</section>
-
-<section class="panel" id="panel-calorias">
-  <h2 class="section-title">Ingesta de comida por semana</h2>
-  <div class="card">
-    <div class="nutrition-controls">
-      <div class="selectbox"><label>Semana</label><select id="nutritionWeekSelect"></select></div>
-      <div class="selectbox"><label>Inicio</label><input id="nutritionStartDate" type="date"></div>
-      <button class="btn" id="addNutritionWeekBtn">+ Añadir semana</button>
-    </div>
-    <div class="summary-grid" id="nutritionWeekSummary"></div>
-    <div class="kcal-source">Registro exclusivo de comida. Introduce las kcal y, cuando los tengas, proteína, hidratos y grasa. Todo se guarda automáticamente en Supabase y se compara con las semanas anteriores.</div>
-  </div>
-  <h2 class="section-title">Detalle diario editable</h2>
-  <div class="card nutrition-table-wrap"><table id="nutritionTable" class="nutrition-table"><thead><tr><th>Día</th><th>Fecha</th><th>Kcal comida</th><th>Proteína</th><th>Hidratos</th><th>Grasa</th><th>Nota</th></tr></thead><tbody></tbody></table></div>
-</section>
-
-<section class="panel" id="panel-dieta">
-  <h2 class="section-title">Resumen y objetivos</h2><div class="card"><div class="macro-grid"><div class="macro"><div class="lbl">Peso corporal</div><div class="val">96,2 kg</div></div><div class="macro"><div class="lbl">% graso</div><div class="val">26 %</div></div><div class="macro"><div class="lbl">Peso magro</div><div class="val">71,2 kg</div></div><div class="macro"><div class="lbl">GET</div><div class="val">2671 kcal</div></div><div class="macro"><div class="lbl">Calorías objetivo</div><div class="val red">2403,7 kcal</div></div><div class="macro"><div class="lbl">Porciones/día</div><div class="val blue">24</div></div></div></div>
-  <h2 class="section-title">Reparto de porciones</h2><div class="card" style="overflow:auto"><table><thead><tr><th>Toma</th><th>Proteína</th><th>Prot. grasa</th><th>Grasa</th><th>CH</th><th>Lácteos</th><th>Fruta</th></tr></thead><tbody><tr><td>Comida 1</td><td>—</td><td>2</td><td>1</td><td>—</td><td>—</td><td>2</td></tr><tr><td>Comida 2</td><td>1</td><td>—</td><td>1</td><td>2</td><td>—</td><td>—</td></tr><tr><td>Comida 3</td><td>1</td><td>—</td><td>1</td><td>3</td><td>—</td><td>—</td></tr><tr><td>Comida 4</td><td>1</td><td>—</td><td>1</td><td>3</td><td>—</td><td>—</td></tr><tr><td>Comida 5</td><td>—</td><td>—</td><td>—</td><td>2</td><td>2</td><td>2</td></tr><tr><td>Intra-entreno</td><td>—</td><td>—</td><td>—</td><td>1</td><td>—</td><td>—</td></tr></tbody></table></div>
-  <h2 class="section-title">Porciones rápidas</h2><div class="card"><details class="food-group" open><summary>Proteína</summary><div class="food-grid"><div class="food-row"><span>Proteína en polvo</span><strong>25 g</strong></div><div class="food-row"><span>Claras de huevo</span><strong>200 g</strong></div><div class="food-row"><span>Pollo / pavo</span><strong>95 g</strong></div><div class="food-row"><span>Ternera magra</span><strong>80 g</strong></div><div class="food-row"><span>Pescado blanco</span><strong>120 g</strong></div><div class="food-row"><span>Atún natural</span><strong>100 g</strong></div></div></details><details class="food-group"><summary>Carbohidratos</summary><div class="food-grid"><div class="food-row"><span>Avena</span><strong>27 g</strong></div><div class="food-row"><span>Arroz / pasta seco</span><strong>30 g</strong></div><div class="food-row"><span>Patata / boniato crudo</span><strong>120 g</strong></div><div class="food-row"><span>Pan</span><strong>40 g</strong></div><div class="food-row"><span>Quinoa</span><strong>30 g</strong></div></div></details><details class="food-group"><summary>Grasas</summary><div class="food-grid"><div class="food-row"><span>Aceite</span><strong>10 g</strong></div><div class="food-row"><span>Frutos secos</span><strong>15 g</strong></div><div class="food-row"><span>Aguacate</span><strong>50 g</strong></div><div class="food-row"><span>Chocolate 85%</span><strong>20 g</strong></div></div></details></div>
+  <h2 class="section-title">Histórico de medidas</h2>
+  <div class="card" style="overflow:auto"><table id="bodyWeeklyTable"><thead><tr><th>Semana</th><th>Peso</th><th>Cuello</th><th>Brazo</th><th>Cintura</th><th>Abdomen relajado</th><th>Cadera</th><th>Muslo</th></tr></thead><tbody></tbody></table></div>
 </section>
 
 <section class="panel" id="panel-suplementos"><h2 class="section-title">Timing del día</h2><div class="card"><div class="timing-grid"><div class="timing-card"><div class="moment">Pre-entreno</div><div class="supp-row"><span>Creatina</span><span class="dose">6 g</span></div></div><div class="timing-card"><div class="moment">Antes de dormir</div><div class="supp-row"><span>Real Sleep / Melatonina</span><span class="dose">3 mg</span></div><div class="supp-row"><span>Ashwagandha</span><span class="dose">400 mg</span></div><div class="supp-row"><span>Magnesio</span><span class="dose">400 mg</span></div><div class="supp-row"><span>Omega 3</span><span class="dose">1 g</span></div></div><div class="timing-card"><div class="moment">Con el desayuno</div><div class="supp-row"><span>Cúrcuma</span><span class="dose">1 g</span></div><div class="supp-row"><span>Vitamina D3</span><span class="dose">2000 UI</span></div></div><div class="timing-card"><div class="moment">Entre comidas</div><div class="supp-row"><span>Taurina</span><span class="dose">1 g</span></div></div><div class="timing-card"><div class="moment">Con la cena</div><div class="supp-row"><span>Espirulina</span><span class="dose">3 g</span></div></div><div class="timing-card"><div class="moment">Flexible</div><div class="supp-row"><span>Proteína de suero</span><span class="dose">a demanda</span></div></div></div></div></section>
@@ -468,6 +504,27 @@ const _renderSummaryNutrition=renderSummary;
 renderSummary=function(){_renderSummaryNutrition();const fixed=[...$('#globalSummary').querySelectorAll('.metric')].find(x=>x.querySelector('.lbl')?.textContent.includes('Kcal comida 13-19'));if(fixed)fixed.remove();const latest=latestNutritionWeek();if(latest){const t=nutritionTotals(latest);$('#globalSummary').insertAdjacentHTML('beforeend',metricHTML(`Kcal comida · Semana ${latest}`,t.kcal?Math.round(t.kcal):'—'))}renderNutritionComparison()}
 const _attachEventsNutrition=attachEvents;
 attachEvents=function(){_attachEventsNutrition();$('#nutritionWeekSelect')?.addEventListener('change',e=>{state.nutritionWeek=Number(e.target.value)||1;saveLocalOnly();renderNutritionEditor()});$('#nutritionStartDate')?.addEventListener('change',e=>setNutritionStartDate(e.target.value,e.target));$('#addNutritionWeekBtn')?.addEventListener('click',()=>{state.nutritionMaxWeek=Math.min(52,(Number(state.nutritionMaxWeek)||8)+1);state.nutritionWeek=state.nutritionMaxWeek;nutritionWeekObj();save();renderNutritionEditor();renderNutritionComparison()});$('#nutritionTable')?.addEventListener('change',e=>{const el=e.target,row=el.closest('[data-nutrition-day]');if(row&&el.dataset.nutrition)setNutritionField(row.dataset.nutritionDay,el.dataset.nutrition,el.value,el)});$('#nutritionCompareA')?.addEventListener('change',e=>{state.nutritionCompare=state.nutritionCompare||{};state.nutritionCompare.a=e.target.value;saveLocalOnly();renderNutritionComparison()});$('#nutritionCompareB')?.addEventListener('change',e=>{state.nutritionCompare=state.nutritionCompare||{};state.nutritionCompare.b=e.target.value;saveLocalOnly();renderNutritionComparison()})}
+
+
+function weekNumbers(){return Array.from({length:NUM_WEEKS},(_,i)=>i+1)}
+function sportWeeksWithData(){const arr=weekNumbers().filter(w=>{const m=weekMetrics(w);return m.kcalActive||m.kcalSport||m.hrMin||m.hrMax||m.duration||m.hrAvg||m.walked});return arr.length?arr:weekNumbers()}
+function sportDelta(curr,prev,unit=''){if(!prev&&prev!==0)return 'Base'; const d=(n(curr)-n(prev)); if(Math.abs(d)<0.01)return '0'+unit; return `${d>0?'+':''}${Math.round(d*10)/10}${unit}`}
+function renderSportCompareSelectors(){const a=$('#sportCompareA'),b=$('#sportCompareB'); if(!a||!b)return; const weeks=sportWeeksWithData(); const opts=weeks.map(w=>`<option value="${w}">Semana ${w}</option>`).join(''); a.innerHTML=opts; b.innerHTML=opts; state.sportCompare=state.sportCompare||{a:String(weeks[0]||1),b:String(weeks[weeks.length-1]||1)}; if(!weeks.includes(Number(state.sportCompare.a))) state.sportCompare.a=String(weeks[0]||1); if(!weeks.includes(Number(state.sportCompare.b))) state.sportCompare.b=String(weeks[weeks.length-1]||1); a.value=String(state.sportCompare.a); b.value=String(state.sportCompare.b)}
+function renderSportDashboard(){const box=$('#sportSummary'),comp=$('#sportCompareSummary'),tb=$('#sportWeeklyTable tbody'); if(!box||!comp||!tb)return; const weeks=sportWeeksWithData(); const latest=weeks[weeks.length-1]||1; const prev=weeks.length>1?weeks[weeks.length-2]:null; const lm=weekMetrics(latest), pm=prev?weekMetrics(prev):null; box.innerHTML = metricHTML('Semana visible',`Semana ${latest}`)+metricHTML('Kcal activas',lm.kcalActive?Math.round(lm.kcalActive)+' kcal':'—')+metricHTML('Kcal deporte',lm.kcalSport?Math.round(lm.kcalSport)+' kcal':'—')+metricHTML('Puls. mín. sueño',lm.hrMin?lm.hrMin.toFixed(0)+' lpm':'—')+metricHTML('Puls. máx. entreno',lm.hrMax?lm.hrMax.toFixed(0)+' lpm':'—')+metricHTML('Tiempo caminando',lm.duration?Math.round(lm.duration)+' min':'—')+metricHTML('LPM caminata',lm.hrAvg?lm.hrAvg.toFixed(0)+' lpm':'—')+metricHTML('Días caminados',`${lm.walked||0}`);
+  renderSportCompareSelectors(); const aW=Number(state.sportCompare.a), bW=Number(state.sportCompare.b), a=weekMetrics(aW), b=weekMetrics(bW); comp.innerHTML = metricHTML(`Kcal activas · S${aW}`,a.kcalActive?Math.round(a.kcalActive)+' kcal':'—')+metricHTML(`Kcal activas · S${bW}`,b.kcalActive?Math.round(b.kcalActive)+' kcal':'—')+metricHTML('Cambio kcal activas',sportDelta(b.kcalActive,a.kcalActive,' kcal'))+metricHTML('Cambio kcal deporte',sportDelta(b.kcalSport,a.kcalSport,' kcal'))+metricHTML('Cambio pulso sueño',sportDelta(b.hrMin,a.hrMin,' lpm'))+metricHTML('Cambio pulso entreno',sportDelta(b.hrMax,a.hrMax,' lpm'));
+  tb.innerHTML = weeks.map((w,i)=>{const m=weekMetrics(w), prevM=i?weekMetrics(weeks[i-1]):null; return `<tr><td>Semana ${w}</td><td>${m.kcalActive?Math.round(m.kcalActive)+' kcal':'—'}<div class="table-note">${prevM?sportDelta(m.kcalActive,prevM.kcalActive,' kcal'):'Base'}</div></td><td>${m.kcalSport?Math.round(m.kcalSport)+' kcal':'—'}<div class="table-note">${prevM?sportDelta(m.kcalSport,prevM.kcalSport,' kcal'):'Base'}</div></td><td>${m.hrMin?m.hrMin.toFixed(0)+' lpm':'—'}</td><td>${m.hrMax?m.hrMax.toFixed(0)+' lpm':'—'}</td><td>${m.duration?Math.round(m.duration)+' min':'—'}</td><td>${m.hrAvg?m.hrAvg.toFixed(0)+' lpm':'—'}</td><td>${m.walked||0}</td></tr>`}).join('')}
+function measurementWeeksWithData(){const arr=[]; for(let w=0; w<=NUM_WEEKS; w++){if(measurementHasData(state.weeklyMeasurements?.[String(w)]||{})) arr.push(w)} return arr.length?arr:[0]}
+function latestMeasurementWeekNum(){const arr=measurementWeeksWithData(); return arr[arr.length-1]??0 }
+function renderBodyWeeklyTable(){const tb=$('#bodyWeeklyTable tbody'); if(!tb) return; const weeks=measurementWeeksWithData(); tb.innerHTML = weeks.map((w)=>{const m={...(state.weeklyMeasurements?.[String(w)]||{}),__week:w}; return `<tr><td>${weekLabel(w)}</td><td>${measurementCell(m,'weight',' kg')}</td><td>${measurementCell(m,'neck',' cm')}</td><td>${measurementCell(m,'arm',' cm')}</td><td>${measurementCell(m,'waist',' cm')}</td><td>${measurementCell(m,'abdomen',' cm')}</td><td>${measurementCell(m,'hip',' cm')}</td><td>${measurementCell(m,'thigh',' cm')}</td></tr>`}).join('')}
+function renderBodyDashboard(){const box=$('#bodySummary'); if(!box) return; const latestW=latestMeasurementWeekNum(); const latest=state.weeklyMeasurements?.[String(latestW)]||{}; const prev=previousMeasurementForWeek(Number(latestW))||{}; const delta=(k,u)=>has(latest[k])&&has(prev[k])?deltaHTML(latest[k],prev[k],u):'—'; box.innerHTML = metricHTML('Semana actual',weekLabel(latestW))+metricHTML('Peso',has(latest.weight)?`${latest.weight} kg`:'—')+metricHTML('Cambio peso',delta('weight',' kg'))+metricHTML('Cintura',has(latest.waist)?`${latest.waist} cm`:'—')+metricHTML('Cambio cintura',delta('waist',' cm'))+metricHTML('Abdomen relajado',has(latest.abdomen)?`${latest.abdomen} cm`:'—')+metricHTML('Cambio abdomen',delta('abdomen',' cm'))+metricHTML('Brazo',has(latest.arm)?`${latest.arm} cm`:'—'); renderBodyModel(); renderBodyWeeklyTable()}
+const _refreshAllRedesign = refreshAll;
+refreshAll = function(){_refreshAllRedesign(); renderSportDashboard(); renderNutritionComparison(); renderBodyDashboard();}
+const _selectTabRedesign = selectTab;
+selectTab = function(tab){_selectTabRedesign(tab); if(tab==='resumen') renderSportDashboard(); if(tab==='calorias') {renderCalories(); renderNutritionComparison();} if(tab==='dieta') renderBodyDashboard();}
+const _renderSummaryRedesign = renderSummary;
+renderSummary = function(){renderSportDashboard()}
+const _attachEventsRedesign = attachEvents;
+attachEvents = function(){_attachEventsRedesign(); $('#sportCompareA')?.addEventListener('change',e=>{state.sportCompare=state.sportCompare||{}; state.sportCompare.a=e.target.value; saveLocalOnly(); renderSportDashboard()}); $('#sportCompareB')?.addEventListener('change',e=>{state.sportCompare=state.sportCompare||{}; state.sportCompare.b=e.target.value; saveLocalOnly(); renderSportDashboard()})}
 
 function bindLogin(){$('#loginBtn').addEventListener('click',()=>{if($('#pinInput').value===AUTH_PIN)unlock();else{$('#loginError').textContent='Contraseña incorrecta';$('#pinInput').select()}});$('#pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});if(sessionStorage.getItem('plan_borja_unlocked')==='1')unlock()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLogin);else bindLogin();
