@@ -59,6 +59,13 @@
 
 .compact-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;background:linear-gradient(135deg,#162642,#1d3156);border-color:#3c5588}.food-hero{background:linear-gradient(135deg,#1a2c3c,#21465b)}.body-hero{background:linear-gradient(135deg,#1a2746,#263467)}.eyebrow{font-size:11px;color:#9ec1ff;text-transform:uppercase;letter-spacing:.12em;font-weight:900;margin-bottom:6px}.hero-title{margin:0 0 8px 0;font-size:24px;line-height:1.1}.hero-copy{margin:0;color:#c7d6ef;max-width:760px}.hero-badge{white-space:nowrap;border:1px solid #5471a8;background:#0f1b31;border-radius:999px;padding:12px 16px;font-size:12px;font-weight:900;color:#f4f7ff}.dashboard-intro{margin-bottom:14px}.sport-compare-positive{color:#8fd7a5}.sport-compare-negative{color:#ffd98a}.table-note{font-size:12px;color:var(--dim)}#sportWeeklyTable td,#bodyWeeklyTable td,#sportWeeklyTable th,#bodyWeeklyTable th{white-space:nowrap}@media(max-width:760px){.compact-hero{flex-direction:column;align-items:flex-start}.hero-title{font-size:20px}.hero-badge{white-space:normal}}
 
+
+.general-hero{background:linear-gradient(135deg,#20234a,#263c6b)}
+.treatment-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}.treatment-pill{background:linear-gradient(135deg,#18243d,#24345a);border:1px solid #425887;border-radius:15px;padding:14px 16px;display:grid;gap:3px}.treatment-pill span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#9ebeff;font-weight:900}.treatment-pill b{font-size:18px}.treatment-pill small{color:var(--dim);font-size:12px}
+.weekly-snapshot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:12px}.snapshot-card{background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 10px 28px #00000020}.snapshot-card.current{border-color:#678de0;box-shadow:0 0 0 1px #678de033 inset,0 12px 34px #00000028}.snapshot-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}.snapshot-title{font-size:17px;font-weight:900}.snapshot-period{font-size:11px;color:var(--dim);margin-top:3px}.snapshot-tag{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;padding:6px 8px;border-radius:999px;background:#263a64;color:#cfe0ff}.snapshot-metrics{display:grid;gap:7px}.snapshot-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:9px 10px}.snapshot-label{font-size:11px;color:var(--dim);font-weight:800}.snapshot-value{text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;font-weight:900}.snapshot-value small{display:block;font-family:inherit;font-size:10px;margin-top:2px}.trend{display:inline-flex;align-items:center;gap:4px;font-weight:900}.trend.up{color:#ff6f7d}.trend.down{color:#55d989}.trend.flat{color:var(--dim)}.trend.none{color:var(--faint)}.trend-legend{display:flex;gap:15px;flex-wrap:wrap;color:var(--dim);font-size:11px;margin:12px 2px 0}.trend-legend span{display:flex;align-items:center;gap:6px}.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block}.legend-dot.up{background:#ff6f7d}.legend-dot.down{background:#55d989}.legend-dot.flat{background:#74819f}.snapshot-treatment{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:flex;flex-wrap:wrap;gap:6px}.snapshot-treatment span{font-size:10px;border:1px solid #4c679b;background:#1a2948;color:#cfe0ff;border-radius:999px;padding:5px 8px;font-weight:900}
+.walk-quick-card{padding:0;overflow:hidden;border-color:#385284}.walk-toggle-row{display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;background:linear-gradient(135deg,#182642,#21365d)}.walk-toggle-copy{display:grid;gap:3px;flex:1}.walk-toggle-copy b{font-size:15px}.walk-toggle-copy small{font-size:11px;color:#b7c9e7}.walk-toggle-row input{position:absolute;opacity:0;pointer-events:none}.switch-ui{width:48px;height:27px;border-radius:999px;background:#101a2d;border:1px solid #4a5c7d;position:relative;flex:0 0 auto;transition:.2s}.switch-ui:after{content:"";position:absolute;width:21px;height:21px;left:2px;top:2px;border-radius:50%;background:#8d99b3;transition:.2s}.walk-toggle-row input:checked+.switch-ui{background:#2f8f5b;border-color:#55d989}.walk-toggle-row input:checked+.switch-ui:after{left:23px;background:white}.walk-quick-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:14px 16px;border-top:1px solid var(--line)}.walk-quick-fields label span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:900;margin:0 0 5px 2px}.walk-quick-fields input{width:100%}
+@media(max-width:720px){.treatment-strip{grid-template-columns:1fr}.walk-quick-fields{grid-template-columns:1fr 1fr}.weekly-snapshot-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -74,22 +81,32 @@
 <div class="app locked" id="app">
 <div class="wrap">
 <header class="top"><div class="brand"><div class="mark">JT</div><div><div class="name">Joaking Team</div><div class="client">Plan de Borja</div></div></div><div class="badge" id="statusBadge">bloqueado</div></header>
-<nav class="tabs" aria-label="Secciones"><button data-tab="rutina" class="active">Entrenamiento</button><button data-tab="resumen">Deporte</button><button data-tab="calorias">Alimentación</button><button data-tab="dieta">Composición</button><button data-tab="ajustes">Ajustes</button></nav>
+<nav class="tabs" aria-label="Secciones"><button data-tab="rutina" class="active">Entrenamiento</button><button data-tab="general">Resumen</button><button data-tab="resumen">Deporte</button><button data-tab="calorias">Alimentación</button><button data-tab="dieta">Composición</button><button data-tab="ajustes">Ajustes</button></nav>
 
 <section class="panel active" id="panel-rutina">
-  <div class="notice blue"><b>Objetivo vs resultado:</b> el objetivo queda fijo en cada ejercicio; tú registras herramienta, peso y repeticiones reales. No hay botón de borrar y las importaciones se fusionan para no machacar datos. Desde la semana 2 verás encima de cada serie lo hecho en la semana anterior.</div>
+  <div class="notice blue"><b>Objetivo vs resultado:</b> el objetivo queda fijo en cada ejercicio; tú registras herramienta, peso y repeticiones reales. Desde la semana 2 verás encima de cada serie lo hecho la semana anterior.</div>
   <div class="controls"><div class="selectbox"><label>Semana</label><select id="weekSelect"></select></div><div class="day-pills" id="dayPills"></div></div>
+
+  <div class="card walk-quick-card">
+    <label class="walk-toggle-row" for="walkToggle">
+      <span class="walk-toggle-copy"><b>He caminado este día</b><small>Actívalo para registrar los datos de la caminata.</small></span>
+      <input id="walkToggle" type="checkbox" aria-label="He caminado este día">
+      <span class="switch-ui" aria-hidden="true"></span>
+    </label>
+    <div id="walkQuickFields" class="walk-quick-fields hidden">
+      <label><span>Tiempo</span><input type="number" min="0" step="1" data-daymetric="duration" placeholder="minutos"></label>
+      <label><span>Kcal activas</span><input type="number" min="0" step="1" data-daymetric="kcalActive" placeholder="kcal"></label>
+      <label><span>Kcal totales</span><input type="number" min="0" step="1" data-daymetric="kcalSport" placeholder="kcal"></label>
+      <label><span>Pulsaciones medias</span><input type="number" min="30" max="220" step="1" data-daymetric="hrAvg" placeholder="lpm"></label>
+    </div>
+  </div>
+
   <h2 class="section-title">Resumen del día</h2><div class="card"><div class="summary-grid" id="daySummary"></div></div>
   <h2 class="section-title" id="routineTitle">Entrenamiento</h2><div id="routineContainer"></div>
   <h2 class="section-title" id="dayDataTitle">Datos del día</h2><div class="card"><div class="form-grid" id="dayMetricsForm">
     <label><span>Fecha</span><input type="date" data-daymetric="date"></label>
-    <label class="weekend-only hidden"><span>¿Caminaste?</span><select data-daymetric="walked"><option value="">—</option><option value="Sí">Sí</option><option value="No">No</option></select></label>
-    <label class="weekend-only hidden"><span>Tiempo caminando</span><input type="number" min="0" step="1" data-daymetric="duration" placeholder="minutos"></label>
-    <label class="weekend-only hidden"><span>LPM media caminata</span><input type="number" min="30" max="220" step="1" data-daymetric="hrAvg" placeholder="lpm"></label>
     <label class="weekday-only"><span>Pulsaciones mín. sueño</span><input type="number" min="25" max="140" step="1" data-daymetric="hrMin" placeholder="lpm"></label>
     <label class="weekday-only"><span>Pulsaciones máx. entreno</span><input type="number" min="60" max="240" step="1" data-daymetric="hrMax" placeholder="lpm"></label>
-    <label><span>Kcal activas</span><input type="number" min="0" step="1" data-daymetric="kcalActive" placeholder="kcal"></label>
-    <label><span id="kcalTotalLabel">Kcal deporte total</span><input type="number" min="0" step="1" data-daymetric="kcalSport" placeholder="kcal"></label>
   </div></div>
   <div id="weeklyMeasurementsBlock" class="hidden"><h2 class="section-title">Ficha semanal · viernes / Día 5</h2><div class="card"><div class="form-grid">
     <label><span>Peso</span><input type="number" step="0.1" data-weekly="weight" placeholder="kg"></label>
@@ -100,6 +117,29 @@
     <label><span>Cadera</span><input type="number" step="0.1" data-weekly="hip" placeholder="cm"></label>
     <label><span>Muslo</span><input type="number" step="0.1" data-weekly="thigh" placeholder="cm"></label>
   </div><div class="notice good" style="margin-top:12px">Esta ficha se muestra solo cuando seleccionas el <b>Día 5</b>. Se guarda como medición semanal de la semana activa.</div></div></div>
+</section>
+
+<section class="panel" id="panel-general">
+  <div class="dashboard-intro card compact-hero general-hero">
+    <div>
+      <div class="eyebrow">Vista rápida semanal</div>
+      <h2 class="hero-title">Resumen de alimentación, deporte, peso y pulsaciones</h2>
+      <p class="hero-copy">Una sola pantalla para revisar las kcal consumidas, las kcal gastadas por deporte, el peso y las pulsaciones mínimas y máximas.</p>
+    </div>
+    <div class="hero-badge">Semana a semana</div>
+  </div>
+
+  <div class="treatment-strip">
+    <div class="treatment-pill"><span>Retatrutida</span><b>5 mg/semana</b><small>desde Semana 4</small></div>
+    <div class="treatment-pill"><span>MOTS-C</span><b>5 mg</b><small>desde el jueves de Semana 4</small></div>
+  </div>
+
+  <h2 class="section-title">Última semana con datos</h2>
+  <div class="card"><div class="summary-grid" id="generalLatestSummary"></div></div>
+
+  <h2 class="section-title">Evolución semanal</h2>
+  <div class="weekly-snapshot-grid" id="generalWeeklyCards"></div>
+  <div class="trend-legend"><span><i class="legend-dot up"></i>Subida</span><span><i class="legend-dot down"></i>Bajada</span><span><i class="legend-dot flat"></i>Sin cambio</span></div>
 </section>
 
 <section class="panel" id="panel-resumen">
@@ -525,6 +565,37 @@ const _renderSummaryRedesign = renderSummary;
 renderSummary = function(){renderSportDashboard()}
 const _attachEventsRedesign = attachEvents;
 attachEvents = function(){_attachEventsRedesign(); $('#sportCompareA')?.addEventListener('change',e=>{state.sportCompare=state.sportCompare||{}; state.sportCompare.a=e.target.value; saveLocalOnly(); renderSportDashboard()}); $('#sportCompareB')?.addEventListener('change',e=>{state.sportCompare=state.sportCompare||{}; state.sportCompare.b=e.target.value; saveLocalOnly(); renderSportDashboard()})}
+
+
+const TREATMENT_START_WEEK=4;
+function valueExists(v){return v!==undefined&&v!==null&&String(v).trim()!==''&&Number.isFinite(Number(String(v).replace(',','.')))}
+function trendMarkup(current,previous,unit='',decimals=0){
+  if(!valueExists(current))return '<span class="trend none">—</span>';
+  if(!valueExists(previous))return '<span class="trend none">Base</span>';
+  const diff=n(current)-n(previous);
+  if(Math.abs(diff)<0.0001)return '<span class="trend flat">• 0'+unit+'</span>';
+  const cls=diff>0?'up':'down',arrow=diff>0?'▲':'▼';
+  return `<span class="trend ${cls}">${arrow} ${Math.abs(diff).toFixed(decimals)}${unit}</span>`;
+}
+function generalWeekHasData(w){const food=nutritionTotals(w),sport=weekMetrics(w),body=state.weeklyMeasurements?.[String(w)]||{};return !!(food.kcal||sport.kcalSport||sport.hrMin||sport.hrMax||measurementHasData(body))}
+function generalDataWeeks(){const max=Math.max(NUM_WEEKS,Number(state.nutritionMaxWeek)||0,...Object.keys(state.weeklyMeasurements||{}).map(Number).filter(Number.isFinite),TREATMENT_START_WEEK);const out=[];for(let w=1;w<=max;w++)if(generalWeekHasData(w)||w===TREATMENT_START_WEEK)out.push(w);return out.length?out:[1]}
+function latestGeneralDataWeek(){const weeks=generalDataWeeks().filter(generalWeekHasData);return weeks.length?weeks[weeks.length-1]:generalDataWeeks()[generalDataWeeks().length-1]}
+function previousWeekWithMetric(w,getter){for(let p=w-1;p>=1;p--){const v=getter(p);if(valueExists(v)&&n(v)!==0)return {week:p,value:v}}return null}
+function weekPeriodLabel(w){try{const wo=state.weeklyNutrition?.[String(w)]||{};const start=wo.startDate||defaultNutritionStart(w);if(!start)return '';const end=isoDateAdd(start,6);return `${start.split('-').reverse().join('/')}–${end.split('-').reverse().join('/')}`}catch{return ''}}
+function snapshotRow(label,value,trend){return `<div class="snapshot-row"><div class="snapshot-label">${label}</div><div class="snapshot-value">${value}<small>${trend}</small></div></div>`}
+function renderGeneralSummary(){const latestBox=$('#generalLatestSummary'),cards=$('#generalWeeklyCards');if(!latestBox||!cards)return;const weeks=generalDataWeeks(),latest=latestGeneralDataWeek(),food=nutritionTotals(latest),sport=weekMetrics(latest),body=state.weeklyMeasurements?.[String(latest)]||{};latestBox.innerHTML=metricHTML('Semana',`Semana ${latest}`)+metricHTML('Kcal consumidas',food.kcal?Math.round(food.kcal)+' kcal':'—')+metricHTML('Kcal deporte',sport.kcalSport?Math.round(sport.kcalSport)+' kcal':'—')+metricHTML('Peso',has(body.weight)?body.weight+' kg':'—')+metricHTML('Puls. mínimas',sport.hrMin?sport.hrMin.toFixed(0)+' lpm':'—')+metricHTML('Puls. máximas',sport.hrMax?sport.hrMax.toFixed(0)+' lpm':'—');
+  cards.innerHTML=weeks.map(w=>{const f=nutritionTotals(w),s=weekMetrics(w),m=state.weeklyMeasurements?.[String(w)]||{};const prevFood=previousWeekWithMetric(w,x=>nutritionTotals(x).kcal),prevSport=previousWeekWithMetric(w,x=>weekMetrics(x).kcalSport),prevMin=previousWeekWithMetric(w,x=>weekMetrics(x).hrMin),prevMax=previousWeekWithMetric(w,x=>weekMetrics(x).hrMax);const prevWeight=previousMeasurementForWeek(w);const treatment=w===TREATMENT_START_WEEK?`<div class="snapshot-treatment"><span>Inicio Reta 5 mg</span><span>Jueves: inicio MOTS-C 5 mg</span></div>`:'';return `<article class="snapshot-card ${w===latest?'current':''}"><div class="snapshot-head"><div><div class="snapshot-title">Semana ${w}</div><div class="snapshot-period">${weekPeriodLabel(w)||'Sin fechas registradas'}</div></div>${w===latest?'<span class="snapshot-tag">Última con datos</span>':''}</div><div class="snapshot-metrics">${snapshotRow('Kcal consumidas',f.kcal?Math.round(f.kcal)+' kcal':'—',trendMarkup(f.kcal,prevFood?.value,' kcal',0))}${snapshotRow('Kcal gastadas por deporte',s.kcalSport?Math.round(s.kcalSport)+' kcal':'—',trendMarkup(s.kcalSport,prevSport?.value,' kcal',0))}${snapshotRow('Peso',has(m.weight)?m.weight+' kg':'—',trendMarkup(m.weight,prevWeight?.weight,' kg',2))}${snapshotRow('Pulsaciones mínimas',s.hrMin?s.hrMin.toFixed(0)+' lpm':'—',trendMarkup(s.hrMin,prevMin?.value,' lpm',0))}${snapshotRow('Pulsaciones máximas',s.hrMax?s.hrMax.toFixed(0)+' lpm':'—',trendMarkup(s.hrMax,prevMax?.value,' lpm',0))}</div>${treatment}</article>`}).join('')}
+function renderWalkingQuick(){const toggle=$('#walkToggle'),fields=$('#walkQuickFields');if(!toggle||!fields)return;const m=metricObj();toggle.checked=m.walked==='Sí';fields.classList.toggle('hidden',!toggle.checked)}
+const _renderDayMetricsSummary=renderDayMetrics;
+renderDayMetrics=function(){_renderDayMetricsSummary();renderWalkingQuick()}
+const _refreshAllSummary=refreshAll;
+refreshAll=function(){_refreshAllSummary();renderGeneralSummary();renderWalkingQuick()}
+const _selectTabSummary=selectTab;
+selectTab=function(tab){_selectTabSummary(tab);if(tab==='general')renderGeneralSummary()}
+const _selectDaySummary=selectDay;
+selectDay=function(day){_selectDaySummary(day);renderWalkingQuick()}
+const _attachEventsSummary=attachEvents;
+attachEvents=function(){_attachEventsSummary();$('#walkToggle')?.addEventListener('change',e=>{const m=metricObj();const old=m.walked;m.walked=e.target.checked?'Sí':'No';m.ts=Date.now();audit('dayMetric',{week:String(state.currentWeek),day:state.currentDay,field:'walked',from:old,to:m.walked});save();renderWalkingQuick();renderDaySummary()})}
 
 function bindLogin(){$('#loginBtn').addEventListener('click',()=>{if($('#pinInput').value===AUTH_PIN)unlock();else{$('#loginError').textContent='Contraseña incorrecta';$('#pinInput').select()}});$('#pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});if(sessionStorage.getItem('plan_borja_unlocked')==='1')unlock()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLogin);else bindLogin();
