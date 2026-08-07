@@ -842,6 +842,115 @@ setNutritionField=function(dayKey,field,value,input){const w=nutritionWeekObj(),
 const _refreshAllMasterV16=refreshAll;
 refreshAll=function(){_refreshAllMasterV16();renderNutritionEditor();renderNutritionComparison();renderBodyDashboard();renderGeneralSummary();renderSportDashboard()};
 
+
+// Corrección v17: recuperación de datos de caminata guardados por versiones anteriores.
+function isWalkEnabled(day){
+  const v=day?.walked;
+  return v==='Sí'||v===true||v==='true'||v==='1'||v===1;
+}
+function walkAuditEntries(base,week,dayId){
+  return (base.auditLog||[]).filter(e=>e&&e.type==='dayMetric'&&String(e.week)===String(week)&&String(e.day)===String(dayId)).sort((a,b)=>(a.ts||0)-(b.ts||0));
+}
+function legacyWalkInterval(entries){
+  const toggles=entries.filter(e=>e.field==='walked'&&(e.to==='Sí'||e.to===true||e.to==='true'||e.to==='1'));
+  if(!toggles.length)return null;
+  const start=toggles[toggles.length-1].ts||0;
+  const off=entries.find(e=>(e.ts||0)>start&&e.field==='walked'&&(e.to==='No'||e.to===false||e.to==='false'||e.to==='0'));
+  // Los valores de la casilla se introducían normalmente en la misma sesión.
+  const end=Math.min(off?.ts||Infinity,start+6*60*60*1000);
+  return {start,end};
+}
+function recoverLegacyWalkField(day,entries,interval,genericField,walkField,{restoreWorkout=false}={}){
+  if(has(day?.[walkField]))return false;
+  const aliases={
+    walkDuration:['walkDuration','walkingDuration','walk_time','walkTime'],
+    walkKcalActive:['walkKcalActive','walkingKcalActive','walkActiveKcal'],
+    walkKcalTotal:['walkKcalTotal','walkingKcalTotal','walkTotalKcal'],
+    walkHrAvg:['walkHrAvg','walkingHrAvg','walkAvgHr']
+  }[walkField]||[];
+  for(const a of aliases){if(has(day?.[a])){day[walkField]=String(day[a]);return true}}
+  if((genericField==='duration'||genericField==='hrAvg')&&has(day?.[genericField])){
+    day[walkField]=String(day[genericField]);
+    return true;
+  }
+  if(!interval)return false;
+  const matches=entries.filter(e=>e.field===genericField&&(e.ts||0)>=interval.start&&(e.ts||0)<=interval.end&&has(e.to));
+  if(!matches.length)return false;
+  const first=matches[0],last=matches[matches.length-1];
+  day[walkField]=String(last.to);
+  if(restoreWorkout&&String(day[genericField]??'')===String(last.to??'')){
+    day[genericField]=has(first.from)?String(first.from):'';
+  }
+  return true;
+}
+function recoverLegacyWalkingV17(base){
+  base.dayMetrics=base.dayMetrics||{};
+  let changed=false;
+  for(const [week,days] of Object.entries(base.dayMetrics)){
+    for(const [dayId,day] of Object.entries(days||{})){
+      if(!day||!isWalkEnabled(day))continue;
+      const entries=walkAuditEntries(base,week,dayId),interval=legacyWalkInterval(entries);
+      changed=recoverLegacyWalkField(day,entries,interval,'duration','walkDuration')||changed;
+      changed=recoverLegacyWalkField(day,entries,interval,'hrAvg','walkHrAvg')||changed;
+      changed=recoverLegacyWalkField(day,entries,interval,'kcalActive','walkKcalActive',{restoreWorkout:true})||changed;
+      changed=recoverLegacyWalkField(day,entries,interval,'kcalSport','walkKcalTotal',{restoreWorkout:true})||changed;
+      day.walked='Sí';
+    }
+  }
+  // Dato confirmado del documento maestro: miércoles 5 de agosto, 100 min caminando.
+  base.dayMetrics['4']=base.dayMetrics['4']||{};
+  const aug5=base.dayMetrics['4']['d3'];
+  if(aug5&&isWalkEnabled(aug5)&&!has(aug5.walkDuration)){
+    aug5.walkDuration='100';changed=true;
+  }
+  base.migrations=base.migrations||{};
+  base.migrations.walkRecoveryV17=true;
+  if(changed)base.walkRecoveryUpdatedAt=Date.now();
+  base.version=17;
+  return base;
+}
+const _normalizeStateWalkV17=normalizeState;
+normalizeState=function(data){return recoverLegacyWalkingV17(_normalizeStateWalkV17(data))};
+
+walkingValues=function(day){
+  if(!isWalkEnabled(day))return {duration:0,kcalActive:0,kcalTotal:0,hrAvg:0};
+  return {
+    duration:n(day?.walkDuration)||n(day?.walkingDuration)||n(day?.walkTime)||n(day?.duration),
+    kcalActive:n(day?.walkKcalActive)||n(day?.walkingKcalActive)||n(day?.walkActiveKcal),
+    kcalTotal:n(day?.walkKcalTotal)||n(day?.walkingKcalTotal)||n(day?.walkTotalKcal),
+    hrAvg:n(day?.walkHrAvg)||n(day?.walkingHrAvg)||n(day?.walkAvgHr)||n(day?.hrAvg)
+  };
+};
+weekMetrics=function(w){
+  const days=Object.values(state.dayMetrics?.[String(w)]||{});
+  const walk=days.map(walkingValues);
+  const workoutKcalActive=sum(days.map(x=>x.kcalActive));
+  const workoutKcalSport=sum(days.map(x=>x.kcalSport));
+  const walkKcalActive=sum(walk.map(x=>x.kcalActive));
+  const walkKcalTotal=sum(walk.map(x=>x.kcalTotal));
+  return {
+    hrMin:avg(days.map(x=>x.hrMin)),
+    hrMax:avg(days.map(x=>x.hrMax)),
+    hrAvg:avg(walk.map(x=>x.hrAvg)),
+    duration:sum(walk.map(x=>x.duration)),
+    workoutKcalActive,workoutKcalSport,walkKcalActive,walkKcalTotal,
+    kcalActive:workoutKcalActive+walkKcalActive,
+    kcalSport:workoutKcalSport+walkKcalTotal,
+    walked:days.filter(isWalkEnabled).length,
+    walkDaysWithTime:walk.filter(x=>x.duration>0).length,
+    walkDaysWithKcal:walk.filter(x=>x.kcalTotal>0||x.kcalActive>0).length,
+    days:days.length
+  };
+};
+
+const _renderSportDashboardWalkV17=renderSportDashboard;
+renderSportDashboard=function(){
+  _renderSportDashboardWalkV17();
+  const box=$('#sportSummary');if(!box)return;
+  const weeks=sportWeeksWithData(),latest=weeks[weeks.length-1]||1,m=weekMetrics(latest);
+  box.innerHTML=metricHTML('Semana visible',`Semana ${latest}`)+metricHTML('Kcal activas totales',m.kcalActive?Math.round(m.kcalActive)+' kcal':'—')+metricHTML('Kcal totales deporte',m.kcalSport?Math.round(m.kcalSport)+' kcal':'—')+metricHTML('Kcal entreno',m.workoutKcalSport?Math.round(m.workoutKcalSport)+' kcal':'—')+metricHTML('Kcal caminata añadidas',m.walkKcalTotal?Math.round(m.walkKcalTotal)+' kcal':'—')+metricHTML('Tiempo caminando',m.duration?Math.round(m.duration)+' min':'—')+metricHTML('LPM caminata',m.hrAvg?m.hrAvg.toFixed(0)+' lpm':'—')+metricHTML('Días caminados',`${m.walked}`)+metricHTML('Días con datos completos',`${Math.min(m.walkDaysWithTime,m.walkDaysWithKcal)}/${m.walked}`);
+};
+
 function bindLogin(){setupScrollTopButton();$('#loginBtn').addEventListener('click',()=>{if($('#pinInput').value===AUTH_PIN)unlock();else{$('#loginError').textContent='Contraseña incorrecta';$('#pinInput').select()}});$('#pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});if(sessionStorage.getItem('plan_borja_unlocked')==='1')unlock()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLogin);else bindLogin();
 })();
