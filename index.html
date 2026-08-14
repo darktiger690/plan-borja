@@ -1052,6 +1052,90 @@ weekMetrics=function(w){
 const _refreshAllAug14V18=refreshAll;
 refreshAll=function(){_refreshAllAug14V18();renderSportDashboard();renderNutritionEditor();renderNutritionComparison();renderBodyDashboard();if(typeof renderGeneralDashboard==='function')renderGeneralDashboard()};
 
+
+
+/* v19 · Corrección crítica de nutrición/Supabase.
+   weeklyNutrition no se fusionaba en mergeStates y la nube podía reemplazar
+   los datos recién migrados. Se fusiona por semana/día y se fuerza una única
+   vez el resumen confirmado/aproximado del 7–13 de agosto. */
+function applyNutritionAug14V19(base){
+  base.migrations=base.migrations||{};
+  base.weeklyNutrition=base.weeklyNutrition||{};
+  if(!base.migrations.nutritionAug14V19){
+    const stamp=new Date('2026-08-14T12:30:00+01:00').getTime();
+    const w=ensureNutritionWeekShape(base.weeklyNutrition['5'],5);
+    w.startDate='2026-08-07';
+    w.officialTotal='15205';
+    w.officialAverage='2172';
+    w.summaryNote='Resumen nutricional 7–13 de agosto de 2026. Total aproximado: 15.205 kcal; media: 2.172 kcal/día. Viernes 7: macros no fiables por la cena de sushi.';
+    const rows={
+      mon:{kcal:'3400',protein:'',carbs:'',fat:'',status:'Aproximado',note:'Viernes 7. ≈3.400 kcal; macros no disponibles de forma fiable por la cena de sushi.'},
+      tue:{kcal:'1810',protein:'86',carbs:'255',fat:'51',status:'Aproximado',note:'Sábado 8.'},
+      wed:{kcal:'1900',protein:'89',carbs:'222',fat:'73',status:'Aproximado',note:'Domingo 9.'},
+      thu:{kcal:'2120',protein:'128',carbs:'271',fat:'58',status:'Aproximado',note:'Lunes 10.'},
+      fri:{kcal:'1960',protein:'129',carbs:'220',fat:'62',status:'Aproximado',note:'Martes 11.'},
+      sat:{kcal:'1845',protein:'128',carbs:'193',fat:'60',status:'Aproximado',note:'Miércoles 12.'},
+      sun:{kcal:'2170',protein:'109',carbs:'293',fat:'60',status:'Aproximado',note:'Jueves 13.'}
+    };
+    Object.entries(rows).forEach(([key,row])=>{
+      w.days[key]={...blankNutritionDay(),...(w.days[key]||{}),...row,ts:stamp};
+    });
+    w.ts=stamp;
+    base.weeklyNutrition['5']=w;
+    base.nutritionMaxWeek=Math.max(Number(base.nutritionMaxWeek)||0,8);
+    base.nutritionWeek=5;
+    base.nutritionCompare={...(base.nutritionCompare||{}),b:'5'};
+    base.migrations.nutritionAug14V19=true;
+  }
+  base.version=19;
+  return base;
+}
+const _normalizeStateV19=normalizeState;
+normalizeState=function(data){return applyNutritionAug14V19(_normalizeStateV19(data))};
+
+function mergeNutritionDayV19(a={},b={}){
+  const at=n(a.ts),bt=n(b.ts),newer=bt>=at?b:a,older=bt>=at?a:b;
+  const out={...older,...newer};
+  ['kcal','protein','carbs','fat','note','status'].forEach(k=>{
+    if(!has(out[k])&&has(older[k]))out[k]=older[k];
+  });
+  out.ts=Math.max(at,bt);
+  return out;
+}
+function mergeWeeklyNutritionV19(cloudNutrition={},localNutrition={}){
+  const out={};
+  const weeks=new Set([...Object.keys(cloudNutrition||{}),...Object.keys(localNutrition||{})]);
+  weeks.forEach(w=>{
+    const c=ensureNutritionWeekShape(cloudNutrition?.[w],w),l=ensureNutritionWeekShape(localNutrition?.[w],w);
+    const newer=n(l.ts)>=n(c.ts)?l:c,older=n(l.ts)>=n(c.ts)?c:l;
+    const merged={...older,...newer,days:{},ts:Math.max(n(c.ts),n(l.ts))};
+    if(!has(merged.startDate))merged.startDate=older.startDate||defaultNutritionStart(w);
+    ['officialTotal','officialAverage','summaryNote'].forEach(k=>{if(!has(merged[k])&&has(older[k]))merged[k]=older[k]});
+    NUTRITION_DAYS.forEach(d=>merged.days[d.key]=mergeNutritionDayV19(c.days?.[d.key]||{},l.days?.[d.key]||{}));
+    out[w]=merged;
+  });
+  return out;
+}
+const _mergeStatesV19=mergeStates;
+mergeStates=function(local,cloud){
+  const out=_mergeStatesV19(local,cloud);
+  const c=normalizeState(cloud||{}),l=normalizeState(local||{});
+  out.weeklyNutrition=mergeWeeklyNutritionV19(c.weeklyNutrition,l.weeklyNutrition);
+  out.nutritionMaxWeek=Math.max(Number(c.nutritionMaxWeek)||0,Number(l.nutritionMaxWeek)||0,8);
+  out.nutritionWeek=Number(l.nutritionWeek)||Number(c.nutritionWeek)||5;
+  out.nutritionCompare={...(c.nutritionCompare||{}),...(l.nutritionCompare||{})};
+  out.migrations={...(c.migrations||{}),...(l.migrations||{}),...(out.migrations||{})};
+  return applyNutritionAug14V19(out);
+};
+
+/* Total nutricional robusto: se calcula siempre desde las siete filas visibles.
+   officialTotal queda solo como referencia y nunca sustituye una edición manual. */
+nutritionTotals=function(week){
+  const w=nutritionWeekObj(week);let kcal=0,protein=0,carbs=0,fat=0,kcalDays=0,macroDays=0;
+  NUTRITION_DAYS.forEach(d=>{const x=w.days[d.key]||{};if(n(x.kcal)>0){kcal+=n(x.kcal);kcalDays++}if(n(x.protein)>0||n(x.carbs)>0||n(x.fat)>0){protein+=n(x.protein);carbs+=n(x.carbs);fat+=n(x.fat);macroDays++}});
+  return {kcal,avg:kcalDays?kcal/kcalDays:0,kcalDays,protein,carbs,fat,macroDays};
+};
+
 function bindLogin(){setupScrollTopButton();$('#loginBtn').addEventListener('click',()=>{if($('#pinInput').value===AUTH_PIN)unlock();else{$('#loginError').textContent='Contraseña incorrecta';$('#pinInput').select()}});$('#pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});if(sessionStorage.getItem('plan_borja_unlocked')==='1')unlock()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLogin);else bindLogin();
 })();
