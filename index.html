@@ -951,6 +951,107 @@ renderSportDashboard=function(){
   box.innerHTML=metricHTML('Semana visible',`Semana ${latest}`)+metricHTML('Kcal activas totales',m.kcalActive?Math.round(m.kcalActive)+' kcal':'—')+metricHTML('Kcal totales deporte',m.kcalSport?Math.round(m.kcalSport)+' kcal':'—')+metricHTML('Kcal entreno',m.workoutKcalSport?Math.round(m.workoutKcalSport)+' kcal':'—')+metricHTML('Kcal caminata añadidas',m.walkKcalTotal?Math.round(m.walkKcalTotal)+' kcal':'—')+metricHTML('Tiempo caminando',m.duration?Math.round(m.duration)+' min':'—')+metricHTML('LPM caminata',m.hrAvg?m.hrAvg.toFixed(0)+' lpm':'—')+metricHTML('Días caminados',`${m.walked}`)+metricHTML('Días con datos completos',`${Math.min(m.walkDaysWithTime,m.walkDaysWithKcal)}/${m.walked}`);
 };
 
+
+/* ===== Datos 14 agosto 2026 + agregación robusta caminata v18 ===== */
+function weekdayLabelFromISO(iso){
+  if(!iso)return 'Día';
+  const names=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const d=new Date(iso+'T12:00:00');return names[d.getDay()]||'Día';
+}
+function applyAug14DataV18(base){
+  base.migrations=base.migrations||{};
+  if(base.migrations.data14082026V18)return base;
+  const stamp=Date.now();
+  base.weeklyMeasurements=base.weeklyMeasurements||{};
+  base.weeklyMeasurements['5']={...(base.weeklyMeasurements['5']||{}),date:'2026-08-14',weight:'94.0',neck:'43.5',arm:'38.5',waist:'99.5',abdomen:'107.4',hip:'96.5',thigh:'62.0',ts:stamp};
+
+  base.weeklyNutrition=base.weeklyNutrition||{};
+  const w5=ensureNutritionWeekShape(base.weeklyNutrition['5'],5);
+  w5.startDate='2026-08-07';
+  w5.officialTotal='15205';
+  w5.officialAverage='2172';
+  w5.summaryNote='Resumen nutricional 7–13 de agosto de 2026. Valores aproximados. El viernes 7 se estiman ≈3.400 kcal, pero no existe una distribución fiable de proteína, carbohidratos y grasa por la cena de sushi.';
+  const rows={
+    mon:masterNutritionRow(3400,'','','','Aproximado','Viernes 7. ≈3.400 kcal. Macros no disponibles de forma fiable por la cena de sushi.'),
+    tue:masterNutritionRow(1810,86,255,51,'Aproximado','Sábado 8.'),
+    wed:masterNutritionRow(1900,89,222,73,'Aproximado','Domingo 9.'),
+    thu:masterNutritionRow(2120,128,271,58,'Aproximado','Lunes 10.'),
+    fri:masterNutritionRow(1960,129,220,62,'Aproximado','Martes 11.'),
+    sat:masterNutritionRow(1845,128,193,60,'Aproximado','Miércoles 12.'),
+    sun:masterNutritionRow(2170,109,293,60,'Aproximado','Jueves 13.')
+  };
+  Object.entries(rows).forEach(([k,row])=>{w5.days[k]={...(w5.days[k]||blankNutritionDay()),...row,ts:stamp}});
+  w5.ts=stamp;base.weeklyNutrition['5']=w5;
+  base.nutritionMaxWeek=Math.max(Number(base.nutritionMaxWeek)||8,8);
+  base.nutritionWeek=5;
+  base.nutritionCompare=base.nutritionCompare||{};
+  base.nutritionCompare.b='5';
+  base.migrations.data14082026V18=true;
+  base.version=18;
+  return base;
+}
+const _normalizeStateAug14V18=normalizeState;
+normalizeState=function(data){return applyAug14DataV18(_normalizeStateAug14V18(data))};
+
+/* Las semanas nutricionales pueden empezar cualquier día: mostrar el día real de la fecha. */
+renderNutritionEditor=function(){
+  const tb=$('#nutritionTable tbody');if(!tb)return;
+  renderNutritionControls();const w=nutritionWeekObj();
+  tb.innerHTML=NUTRITION_DAYS.map(d=>{
+    const day=w.days[d.key],date=isoDateAdd(w.startDate||defaultNutritionStart(state.nutritionWeek),d.offset);
+    const label=weekdayLabelFromISO(date);
+    const status=day.status?`<div class="nutrition-unit" style="margin-top:5px">${escapeHTML(day.status)}</div>`:'';
+    return `<tr data-nutrition-day="${d.key}"><td class="day-name">${label}</td><td class="date-cell">${date?date.split('-').reverse().join('/'):'—'}</td><td>${nutritionInput(day,'kcal')}${status}</td><td>${nutritionInput(day,'protein','0.1')}<span class="nutrition-unit">g</span></td><td>${nutritionInput(day,'carbs','0.1')}<span class="nutrition-unit">g</span></td><td>${nutritionInput(day,'fat','0.1')}<span class="nutrition-unit">g</span></td><td><textarea data-nutrition="note" placeholder="Opcional">${escapeHTML(day.note||'')}</textarea></td></tr>`
+  }).join('');
+  renderNutritionWeekSummary();
+};
+
+/*
+  Agregación definitiva:
+  - d1–d5: kcal generales = entrenamiento; walk* = caminata adicional.
+  - d6–d7: son actividad/caminata; los campos generales antiguos se consideran caminata solo como fallback.
+  - nunca se duplica un valor de fin de semana.
+*/
+function robustWalkValues(day,activityOnly){
+  if(!isWalkEnabled(day))return {duration:0,kcalActive:0,kcalTotal:0,hrAvg:0};
+  const explicitDuration=n(day?.walkDuration)||n(day?.walkingDuration)||n(day?.walkTime);
+  const explicitActive=n(day?.walkKcalActive)||n(day?.walkingKcalActive)||n(day?.walkActiveKcal);
+  const explicitTotal=n(day?.walkKcalTotal)||n(day?.walkingKcalTotal)||n(day?.walkTotalKcal);
+  const explicitHr=n(day?.walkHrAvg)||n(day?.walkingHrAvg)||n(day?.walkAvgHr);
+  return {
+    duration:explicitDuration||(activityOnly?n(day?.duration):0),
+    kcalActive:explicitActive||(activityOnly?n(day?.kcalActive):0),
+    kcalTotal:explicitTotal||(activityOnly?n(day?.kcalSport):0),
+    hrAvg:explicitHr||n(day?.hrAvg)
+  };
+}
+walkingValues=function(day){return robustWalkValues(day,false)};
+weekMetrics=function(w){
+  const entries=Object.entries(state.dayMetrics?.[String(w)]||{});
+  let workoutKcalActive=0,workoutKcalSport=0,walkKcalActive=0,walkKcalTotal=0,walkDuration=0;
+  const hrMin=[],hrMax=[],walkHr=[];let walked=0,walkDaysWithTime=0,walkDaysWithKcal=0;
+  entries.forEach(([dayId,day])=>{
+    const activityOnly=dayId==='d6'||dayId==='d7';
+    if(!activityOnly){workoutKcalActive+=n(day?.kcalActive);workoutKcalSport+=n(day?.kcalSport)}
+    if(n(day?.hrMin)>0)hrMin.push(n(day.hrMin));if(n(day?.hrMax)>0)hrMax.push(n(day.hrMax));
+    const walk=robustWalkValues(day,activityOnly);
+    if(isWalkEnabled(day))walked++;
+    walkDuration+=walk.duration;walkKcalActive+=walk.kcalActive;walkKcalTotal+=walk.kcalTotal;
+    if(walk.duration>0)walkDaysWithTime++;if(walk.kcalActive>0||walk.kcalTotal>0)walkDaysWithKcal++;if(walk.hrAvg>0)walkHr.push(walk.hrAvg);
+  });
+  return {
+    hrMin:avg(hrMin),hrMax:avg(hrMax),hrAvg:avg(walkHr),duration:walkDuration,
+    workoutKcalActive,workoutKcalSport,walkKcalActive,walkKcalTotal,
+    kcalActive:workoutKcalActive+walkKcalActive,
+    kcalSport:workoutKcalSport+walkKcalTotal,
+    walked,walkDaysWithTime,walkDaysWithKcal,days:entries.length
+  };
+};
+
+/* Forzar refresco de todas las vistas con los cálculos v18. */
+const _refreshAllAug14V18=refreshAll;
+refreshAll=function(){_refreshAllAug14V18();renderSportDashboard();renderNutritionEditor();renderNutritionComparison();renderBodyDashboard();if(typeof renderGeneralDashboard==='function')renderGeneralDashboard()};
+
 function bindLogin(){setupScrollTopButton();$('#loginBtn').addEventListener('click',()=>{if($('#pinInput').value===AUTH_PIN)unlock();else{$('#loginError').textContent='Contraseña incorrecta';$('#pinInput').select()}});$('#pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});if(sessionStorage.getItem('plan_borja_unlocked')==='1')unlock()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLogin);else bindLogin();
 })();
