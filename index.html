@@ -196,7 +196,7 @@
     <span class="status-chip approximate">Aproximado</span>
     <span class="status-chip estimated">Estimado</span>
     <span class="status-chip unavailable">No disponible</span>
-    <small>Datos actualizados hasta el 7 de agosto de 2026. Las estimaciones siguen identificadas como tales.</small>
+    <small>Datos actualizados hasta el 28 de agosto de 2026. Las estimaciones y aproximaciones siguen identificadas como tales.</small>
   </div>
   <h2 class="section-title">Semana editable</h2>
   <div class="card">
@@ -1220,6 +1220,105 @@ renderBodyDashboard=function(){
 /* Forzar actualización visual tras cargar los nuevos datos. */
 const _refreshAllV20=refreshAll;
 refreshAll=function(){_refreshAllV20();renderNutritionEditor();renderNutritionComparison();renderBodyDashboard();renderGeneralSummary();renderSportDashboard()};
+
+
+
+/* ===== v22 · Datos 24–27 agosto + medición 28 agosto ===== */
+function applyAug28DataV22(base){
+  base.migrations=base.migrations||{};
+  base.weeklyMeasurements=base.weeklyMeasurements||{};
+  base.weeklyNutrition=base.weeklyNutrition||{};
+  if(!base.migrations.data28082026V22){
+    const stamp=new Date('2026-08-28T09:43:00+01:00').getTime();
+
+    /* Semana 7: medición del viernes 28/08. La cintura queda expresamente sin dato válido. */
+    const m7={...(base.weeklyMeasurements['7']||{})};
+    Object.assign(m7,{
+      date:'2026-08-28',weight:'93.9',neck:'43.5',arm:'37.8',abdomen:'105.0',hip:'95.4',thigh:'61.9',
+      measurementNote:'Medición del 28/08/2026. La cintura no se introduce como dato válido por cambio/confusión en el punto de colocación de la cinta. Abdomen/barriga en reposo confirmado en 105,0 cm; es preferible mantener la cintura vacía antes que cargar una medida no comparable.',
+      ts:stamp
+    });
+    delete m7.waist;
+    base.weeklyMeasurements['7']=m7;
+
+    /* Nutrición 24–27/08: cuatro días contabilizados; viernes-domingo quedan abiertos para edición manual. */
+    const w7=ensureNutritionWeekShape(base.weeklyNutrition['7'],7);
+    w7.startDate='2026-08-24';
+    w7.officialTotal='7877';
+    w7.officialAverage='1969';
+    w7.targetKcal='2404';w7.targetProtein='106.8';w7.targetCarbs='345.9';w7.targetFat='65.9';
+    w7.summaryNote='Semana 24–30 de agosto en curso. Datos disponibles del 24 al 27: 7.877 kcal en 4 días; media 1.969 kcal/día, 101,7 g proteína/día, 273,3 g hidratos/día y 49,5 g grasa/día. Objetivo de referencia: 2.404 kcal, 106,8 g proteína, 345,9 g hidratos y 65,9 g grasa. Martes 25 es el día con mayor incertidumbre por el reparto proporcional de unas sobras de cena. Viernes, sábado y domingo permanecen sin datos hasta su registro.';
+    const rows={
+      mon:{kcal:'1832',protein:'106.7',carbs:'268.3',fat:'33.9',status:'Aproximado',note:'Lunes 24. 6 tortitas de maíz; pollo con arroz, tomate y piña; banana + 6 tortitas; pancakes Good Morning con huevos, leche +Proteínas y crema de cacahuete.'},
+      tue:{kcal:'1797',protein:'96.7',carbs:'270.9',fat:'38.1',status:'Estimado',note:'Martes 25. Banana + 4 tortitas; ñoquis con pollo, cebolla y salsa fresca de queso; Dinosaurus 0% + banana; cena de atún/verduras/AOVE con sobras y 4 tortitas. Reparto de la cena estimado por peso sobrante.'},
+      wed:{kcal:'2339',protein:'105.5',carbs:'345.1',fat:'57.2',status:'Aproximado',note:'Miércoles 26. Banana 162 g, María 0%, miel, Dinosaurus 0% y chocolate 85%; sobras + atún + 383 g patata + 129 g piña; banana + 4 tortitas; pancakes Good Morning con huevos, leche, crema de cacahuete y miel.'},
+      thu:{kcal:'1909',protein:'97.8',carbs:'209.0',fat:'68.7',status:'Aproximado',note:'Jueves 27. Captain Caramel + 6 tortitas; 430 g patata + 180 g carne picada + ketchup Zero + mayonesa Heinz; pancakes Good Morning con 2 huevos, leche +Proteínas y miel.'},
+      fri:{kcal:'',protein:'',carbs:'',fat:'',status:'No disponible',note:'Pendiente de registrar.'},
+      sat:{kcal:'',protein:'',carbs:'',fat:'',status:'No disponible',note:'Pendiente de registrar.'},
+      sun:{kcal:'',protein:'',carbs:'',fat:'',status:'No disponible',note:'Pendiente de registrar.'}
+    };
+    Object.entries(rows).forEach(([key,row])=>{w7.days[key]={...blankNutritionDay(),...(w7.days[key]||{}),...row,ts:stamp}});
+    w7.ts=stamp;base.weeklyNutrition['7']=w7;
+
+    base.nutritionMaxWeek=Math.max(Number(base.nutritionMaxWeek)||0,8);
+    base.nutritionWeek=7;
+    base.nutritionCompare={...(base.nutritionCompare||{}),b:'7'};
+    base.bodyCompare={...(base.bodyCompare||{}),b:'7'};
+    base.migrations.data28082026V22=true;
+  }
+  base.version=22;
+  return base;
+}
+const _normalizeStateV22=normalizeState;
+normalizeState=function(data){return applyAug28DataV22(_normalizeStateV22(data))};
+const _mergeStatesV22=mergeStates;
+mergeStates=function(local,cloud){return applyAug28DataV22(_mergeStatesV22(local,cloud))};
+
+/* La semana parcial se compara por media diaria, no por total contra una semana completa. */
+function nutritionChangeBasis(current,previous){
+  if(!current||!previous)return {curr:0,prev:0,label:'Cambio vs anterior'};
+  if(current.kcalDays<7||previous.kcalDays<7)return {curr:current.avg,prev:previous.avg,label:'Cambio media/día'};
+  return {curr:current.kcal,prev:previous.kcal,label:'Cambio vs anterior'};
+}
+renderNutritionWeekSummary=function(){
+  const box=$('#nutritionWeekSummary'),note=$('#nutritionWeekReliability');if(!box)return;
+  const t=nutritionTotals(state.nutritionWeek),pw=previousNutritionWeek(state.nutritionWeek),pt=pw?nutritionTotals(pw):null,c=nutritionStatusCounts(state.nutritionWeek),w=nutritionWeekObj();
+  const basis=pt?nutritionChangeBasis(t,pt):null;
+  box.innerHTML=metricHTML(t.kcalDays<7?`Kcal comida · ${t.kcalDays} días`:'Kcal comida semana',t.kcal?Math.round(t.kcal):'—')+metricHTML('Media diaria',t.avg?Math.round(t.avg):'—')+metricHTML(basis?.label||'Cambio vs anterior',basis?nutritionDelta(basis.curr,basis.prev):'—')+metricHTML('Proteína media',t.protein?`${averageMacro(t,'protein').toFixed(1)} g/día`:'—')+metricHTML('Hidratos medios',t.carbs?`${averageMacro(t,'carbs').toFixed(1)} g/día`:'—')+metricHTML('Grasa media',t.fat?`${averageMacro(t,'fat').toFixed(1)} g/día`:'—')+metricHTML('Días con kcal',`${t.kcalDays}/7`)+metricHTML('Objetivo kcal/día',has(w.targetKcal)?`${w.targetKcal} kcal`:'—');
+  if(note)note.textContent=w.summaryNote||'';
+};
+
+renderNutritionComparison=function(){
+  const box=$('#nutritionCompareSummary'),tb=$('#nutritionWeeklyTable tbody');if(!box||!tb)return;renderNutritionCompareSelectors();
+  const aW=Number(state.nutritionCompare?.a||1),bW=Number(state.nutritionCompare?.b||latestNutritionWeek()||1),a=nutritionTotals(aW),b=nutritionTotals(bW),basis=nutritionChangeBasis(b,a);
+  box.innerHTML=metricHTML(`Semana ${aW}`,a.kcal?`${Math.round(a.kcal)} kcal · ${a.kcalDays} d`:'—')+metricHTML(`Semana ${bW}`,b.kcal?`${Math.round(b.kcal)} kcal · ${b.kcalDays} d`:'—')+metricHTML(basis.label,a.kcal&&b.kcal?nutritionDelta(basis.curr,basis.prev):'—')+metricHTML('Diferencia media',a.avg&&b.avg?nutritionDelta(b.avg,a.avg):'—');
+  const weeks=nutritionWeeksWithData();
+  tb.innerHTML=weeks.map((w,i)=>{const t=nutritionTotals(w),prev=i?nutritionTotals(weeks[i-1]):null,wo=nutritionWeekObj(w),start=wo.startDate||defaultNutritionStart(w),end=isoDateAdd(start,6),change=prev?nutritionChangeBasis(t,prev):null;return `<tr><td>Semana ${w}</td><td>${start.split('-').reverse().join('/')}–${end.split('-').reverse().join('/')}</td><td><span class="nutrition-total-main">${Math.round(t.kcal)} kcal${t.kcalDays<7?` · ${t.kcalDays} d`:''}</span></td><td>${Math.round(t.avg)} kcal</td><td>${change?nutritionDelta(change.curr,change.prev):'Base'}</td><td>${t.protein?averageMacro(t,'protein').toFixed(1)+' g/día':'—'}</td><td>${t.carbs?averageMacro(t,'carbs').toFixed(1)+' g/día':'—'}</td><td>${t.fat?averageMacro(t,'fat').toFixed(1)+' g/día':'—'}</td></tr>`}).join('');
+};
+
+/* Actualizar el resumen general evitando comparar 4 días contra 7 como si fueran semanas completas. */
+renderGeneralSummary=function(){
+  const latestBox=$('#generalLatestSummary'),cards=$('#generalWeeklyCards');if(!latestBox||!cards)return;
+  const weeks=generalDataWeeks(),latest=latestGeneralDataWeek(),food=nutritionTotals(latest),sport=weekMetrics(latest),body=state.weeklyMeasurements?.[String(latest)]||{};
+  latestBox.innerHTML=metricHTML('Semana',`Semana ${latest}`)+metricHTML(food.kcalDays<7?`Kcal consumidas · ${food.kcalDays} días`:'Kcal consumidas',food.kcal?Math.round(food.kcal)+' kcal':'—')+metricHTML('Media comida/día',food.avg?Math.round(food.avg)+' kcal':'—')+metricHTML('Kcal deporte total',sport.kcalSport?Math.round(sport.kcalSport)+' kcal':'—')+metricHTML('Peso',has(body.weight)?body.weight+' kg':'—')+metricHTML('Puls. mínimas',sport.hrMin?sport.hrMin.toFixed(0)+' lpm':'—')+metricHTML('Puls. máximas',sport.hrMax?sport.hrMax.toFixed(0)+' lpm':'—');
+  cards.innerHTML=weeks.map(w=>{const f=nutritionTotals(w),s=weekMetrics(w),m=state.weeklyMeasurements?.[String(w)]||{};const prevFoodWeek=previousWeekWithMetric(w,x=>nutritionTotals(x).kcal),prevFood=prevFoodWeek?nutritionTotals(prevFoodWeek.week):null,prevSport=previousWeekWithMetric(w,x=>weekMetrics(x).kcalSport),prevMin=previousWeekWithMetric(w,x=>weekMetrics(x).hrMin),prevMax=previousWeekWithMetric(w,x=>weekMetrics(x).hrMax),prevWeight=previousMeasurementForWeek(w),treatment=treatmentForWeek(w),foodBasis=prevFood?nutritionChangeBasis(f,prevFood):null;return `<article class="snapshot-card ${w===latest?'current':''}"><div class="snapshot-head"><div><div class="snapshot-title">Semana ${w}</div><div class="snapshot-period">${weekPeriodLabel(w)||'Sin fechas registradas'}</div></div>${w===latest?'<span class="snapshot-tag">Última con datos</span>':''}</div><div class="snapshot-metrics">${snapshotRow(f.kcalDays<7?`Kcal consumidas · ${f.kcalDays} días`:'Kcal consumidas',f.kcal?Math.round(f.kcal)+' kcal':'—',foodBasis?trendMarkup(foodBasis.curr,foodBasis.prev,foodBasis.label.includes('media')?' kcal/día':' kcal',0):'')}${snapshotRow('Kcal deporte · entreno + caminata',s.kcalSport?Math.round(s.kcalSport)+' kcal':'—',trendMarkup(s.kcalSport,prevSport?.value,' kcal',0))}${snapshotRow('Peso',has(m.weight)?m.weight+' kg':'—',trendMarkup(m.weight,prevWeight?.weight,' kg',2))}${snapshotRow('Pulsaciones mínimas',s.hrMin?s.hrMin.toFixed(0)+' lpm':'—',trendMarkup(s.hrMin,prevMin?.value,' lpm',0))}${snapshotRow('Pulsaciones máximas',s.hrMax?s.hrMax.toFixed(0)+' lpm':'—',trendMarkup(s.hrMax,prevMax?.value,' lpm',0))}</div>${treatment}</article>`}).join('');
+};
+
+/* Pauta actual visible también en la semana 7. */
+treatmentForWeek=function(w){
+  const rows={
+    2:['Miércoles: Reta 2 mg','Sábado: Reta 4 mg'],
+    3:['Reta 4 mg'],
+    4:['Reta 5 mg','Inicio MOTS-C 5 mg'],
+    5:['Sábado: Reta 5 mg','MOTS-C: 5 mg cada 3 días','13/08: inicio CJC + Ipa 0,20 mg totales/día (0,10 mg + 0,10 mg)','13/08: inicio KLOW 2,00 mg totales/día (GHK-Cu 1,25 mg + BPC-157 0,25 mg + TB-500 0,25 mg + KPV 0,25 mg)'],
+    6:['Sábado: Reta 5 mg','MOTS-C: 5 mg cada 3 días','Desde 20/08: CJC + Ipa 0,50 mg totales/día (0,25 mg + 0,25 mg)','Desde 20/08: KLOW 2,80 mg totales/día (GHK-Cu 1,75 mg + BPC-157 0,35 mg + TB-500 0,35 mg + KPV 0,35 mg)'],
+    7:['Sábado: Reta 5 mg','MOTS-C: 5 mg cada 3 días','CJC + Ipa: 0,50 mg totales/día (0,25 mg + 0,25 mg)','KLOW: 2,80 mg totales/día (GHK-Cu 1,75 mg + BPC-157 0,35 mg + TB-500 0,35 mg + KPV 0,35 mg)']
+  }[Number(w)]||[];
+  return rows.length?`<div class="snapshot-treatment">${rows.map(x=>`<span>${x}</span>`).join('')}</div>`:'';
+};
+
+const _refreshAllV22=refreshAll;
+refreshAll=function(){_refreshAllV22();renderNutritionEditor();renderNutritionComparison();renderBodyDashboard();renderGeneralSummary();renderSportDashboard()};
 
 function bindLogin(){setupScrollTopButton();$('#loginBtn').addEventListener('click',()=>{if($('#pinInput').value===AUTH_PIN)unlock();else{$('#loginError').textContent='Contraseña incorrecta';$('#pinInput').select()}});$('#pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});if(sessionStorage.getItem('plan_borja_unlocked')==='1')unlock()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLogin);else bindLogin();
