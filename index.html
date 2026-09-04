@@ -75,6 +75,10 @@
 
 .treatment-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin:-4px 0 18px}.treatment-detail-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px;display:grid;gap:5px}.treatment-detail-card>span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-weight:900}.treatment-detail-card>b{font-size:13px;color:var(--text);margin-top:3px}.treatment-detail-card>small{font-size:11px;line-height:1.45;color:var(--dim)}
 
+
+/* v23 · composición corporal BIA */
+.bia-overview-card{background:linear-gradient(145deg,#151f38,#192947);border-color:#36517d}.bia-topline{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}.bia-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint);font-weight:900}.bia-date{font-size:20px;font-weight:900;margin-top:3px}.bia-summary .metric{min-height:86px}.bia-form label span::after{font-weight:500;color:var(--faint)}#biaWeeklyTable th,#biaWeeklyTable td{white-space:nowrap}.bia-delta{display:block;font-size:11px;font-weight:900;margin-top:3px}.bia-delta.up{color:#ff707d}.bia-delta.down{color:#5bd28a}.bia-delta.flat{color:var(--dim)}.bia-delta.na{color:var(--faint);font-weight:700}.bia-primary{font-size:14px;font-weight:900}.bia-secondary{display:block;font-size:11px;color:var(--dim);margin-top:2px}@media(max-width:760px){.bia-date{font-size:18px}.bia-form{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -264,34 +268,61 @@
 <section class="panel" id="panel-dieta">
   <div class="dashboard-intro card compact-hero body-hero">
     <div>
-      <div class="eyebrow">Solo composición corporal</div>
-      <h2 class="hero-title">Medidas, peso y comparación visual</h2>
-      <p class="hero-copy">Compara semanas de medición, revisa los cambios en peso y perímetros y visualiza la evolución del cuerpo de forma más clara.</p>
+      <div class="eyebrow">Composición corporal</div>
+      <h2 class="hero-title">Peso, perímetros y composición de la báscula</h2>
+      <p class="hero-copy">Los perímetros manuales y la bioimpedancia se guardan por separado para comparar tendencias semanales sin mezclar metodologías.</p>
     </div>
-    <div class="hero-badge">Peso · Perímetros · Evolución</div>
+    <div class="hero-badge">Perímetros · Grasa · Músculo · Agua</div>
   </div>
-  <h2 class="section-title">Última medición</h2>
+
+  <h2 class="section-title">Última medición manual</h2>
   <div class="card"><div class="summary-grid" id="bodySummary"></div><div class="kcal-source" id="bodyMeasurementNote"></div></div>
-  <h2 class="section-title">Comparación visual</h2>
-  <div class="card">
-    <div class="body-compare-controls">
-      <div class="selectbox"><label>Semana A</label><select id="bodyWeekA"></select></div>
-      <div class="selectbox"><label>Semana B</label><select id="bodyWeekB"></select></div>
+
+  <h2 class="section-title">Composición corporal BIA · báscula Arboleaf</h2>
+  <div class="card bia-overview-card">
+    <div class="bia-topline">
+      <div>
+        <div class="bia-kicker">Última lectura registrada</div>
+        <div class="bia-date" id="biaLatestDate">—</div>
+      </div>
+      <div class="selectbox"><label>Consultar / editar fecha</label><input id="biaDateInput" type="date"></div>
     </div>
-    <div class="body-compare-grid">
-      <div class="body-card">
-        <div class="body-card-title" id="bodyCardATitle">Semana A</div>
-        <div class="body-model-realistic"><svg id="bodySvgA" viewBox="0 0 420 640" aria-label="Cuerpo semana A"></svg></div>
-        <div class="body-labels" id="bodyLabelsA"></div>
-      </div>
-      <div class="body-card">
-        <div class="body-card-title" id="bodyCardBTitle">Semana B</div>
-        <div class="body-model-realistic"><svg id="bodySvgB" viewBox="0 0 420 640" aria-label="Cuerpo semana B"></svg></div>
-        <div class="body-labels" id="bodyLabelsB"></div>
-      </div>
+    <div class="summary-grid bia-summary" id="biaSummary"></div>
+    <div class="kcal-source" id="biaMeasurementNote"></div>
+  </div>
+
+  <h2 class="section-title">Datos BIA editables</h2>
+  <div class="card">
+    <div class="notice blue"><b>Para futuras semanas:</b> selecciona la fecha de la nueva medición y rellena los campos. La aplicación guardará el registro y lo incorporará automáticamente al histórico comparativo.</div>
+    <div class="form-grid bia-form">
+      <label><span>Peso BIA</span><input type="number" step="0.1" data-bia="weight" placeholder="kg"></label>
+      <label><span>IMC</span><input type="number" step="0.1" data-bia="bmi" placeholder="IMC"></label>
+      <label><span>Grasa corporal</span><input type="number" step="0.1" data-bia="bodyFatPct" placeholder="%"></label>
+      <label><span>Masa grasa</span><input type="number" step="0.1" data-bia="fatMassKg" placeholder="kg"></label>
+      <label><span>Masa libre de grasa</span><input type="number" step="0.1" data-bia="ffmKg" placeholder="kg"></label>
+      <label><span>Masa magra blanda</span><input type="number" step="0.01" data-bia="softLeanKg" placeholder="kg"></label>
+      <label><span>Músculo esquelético</span><input type="number" step="0.1" data-bia="skeletalMuscleKg" placeholder="kg"></label>
+      <label><span>Músculo esquelético</span><input type="number" step="0.1" data-bia="skeletalMusclePct" placeholder="%"></label>
+      <label><span>Grasa visceral</span><input type="number" step="0.1" data-bia="visceralFat" placeholder="índice"></label>
+      <label><span>Grasa subcutánea</span><input type="number" step="0.1" data-bia="subcutaneousFatPct" placeholder="%"></label>
+      <label><span>Grasa subcutánea</span><input type="number" step="0.01" data-bia="subcutaneousFatKg" placeholder="kg"></label>
+      <label><span>Agua corporal</span><input type="number" step="0.1" data-bia="waterPct" placeholder="%"></label>
+      <label><span>Agua corporal</span><input type="number" step="0.1" data-bia="waterL" placeholder="L"></label>
+      <label><span>Proteína corporal</span><input type="number" step="0.1" data-bia="proteinPct" placeholder="%"></label>
+      <label><span>Proteína corporal</span><input type="number" step="0.1" data-bia="proteinKg" placeholder="kg"></label>
+      <label><span>Masa ósea</span><input type="number" step="0.1" data-bia="bonePct" placeholder="%"></label>
+      <label><span>Masa ósea</span><input type="number" step="0.01" data-bia="boneKg" placeholder="kg"></label>
+      <label><span>BMR estimado</span><input type="number" step="1" data-bia="bmr" placeholder="kcal/día"></label>
+      <label><span>SMI</span><input type="number" step="0.1" data-bia="smi" placeholder="SMI"></label>
+      <label><span>Relación cintura-cadera báscula</span><input type="number" step="0.01" data-bia="whr" placeholder="ratio"></label>
+      <label><span>Puntuación báscula</span><input type="number" step="0.1" data-bia="score" placeholder="/100"></label>
     </div>
   </div>
-  <h2 class="section-title">Histórico de medidas</h2>
+
+  <h2 class="section-title">Evolución BIA semanal</h2>
+  <div class="card" style="overflow:auto"><table id="biaWeeklyTable"><thead><tr><th>Fecha</th><th>Peso</th><th>Grasa %</th><th>Masa grasa</th><th>Músculo esquelético</th><th>Masa libre grasa</th><th>Grasa visceral</th><th>Agua %</th><th>BMR</th><th>SMI</th><th>Puntuación</th></tr></thead><tbody></tbody></table></div>
+
+  <h2 class="section-title">Histórico de perímetros manuales</h2>
   <div class="card" style="overflow:auto"><table id="bodyWeeklyTable"><thead><tr><th>Semana</th><th>Fecha</th><th>Peso</th><th>Cuello</th><th>Brazo</th><th>Cintura</th><th>Abdomen relajado</th><th>Cadera</th><th>Muslo</th></tr></thead><tbody></tbody></table></div>
 </section>
 
@@ -1319,6 +1350,143 @@ treatmentForWeek=function(w){
 
 const _refreshAllV22=refreshAll;
 refreshAll=function(){_refreshAllV22();renderNutritionEditor();renderNutritionComparison();renderBodyDashboard();renderGeneralSummary();renderSportDashboard()};
+
+
+
+/* ===== v23 · Nutrición 24/08–03/09 + medición/BIA 04/09 ===== */
+const BIA_FIELDS=[
+  ['weight','Peso BIA','kg',1],['bmi','IMC','',1],['bodyFatPct','Grasa corporal','%',1],['fatMassKg','Masa grasa','kg',1],
+  ['ffmKg','Masa libre de grasa','kg',1],['softLeanKg','Masa magra blanda','kg',2],['skeletalMuscleKg','Músculo esquelético','kg',1],['skeletalMusclePct','Músculo esquelético','%',1],
+  ['visceralFat','Grasa visceral','',1],['subcutaneousFatPct','Grasa subcutánea','%',1],['subcutaneousFatKg','Grasa subcutánea','kg',2],
+  ['waterPct','Agua corporal','%',1],['waterL','Agua corporal','L',1],['proteinPct','Proteína corporal','%',1],['proteinKg','Proteína corporal','kg',1],
+  ['bonePct','Masa ósea','%',1],['boneKg','Masa ósea','kg',2],['bmr','BMR','kcal/día',0],['smi','SMI','',1],['whr','Cintura-cadera báscula','',2],['score','Puntuación','/100',1]
+];
+function bodyCompHasData(r){return !!(r&&BIA_FIELDS.some(([k])=>has(r[k])))}
+function applySep4DataV23(base){
+  base.migrations=base.migrations||{};
+  base.weeklyMeasurements=base.weeklyMeasurements||{};
+  base.weeklyNutrition=base.weeklyNutrition||{};
+  base.bodyCompositionLog=base.bodyCompositionLog||{};
+  base.dayMetrics=base.dayMetrics||{};
+  const stamp=new Date('2026-09-04T09:33:00+01:00').getTime();
+
+  /* Actividad recuperada 30/08: 90 min caminando; el reloj registró 518 kcal. La fuente no distingue kcal activas de totales, por lo que solo se carga como kcal totales de caminata. */
+  base.dayMetrics['7']=base.dayMetrics['7']||{};
+  const walk30={...(base.dayMetrics['7']['d7']||{})};
+  if(!has(walk30.date))walk30.date='2026-08-30';
+  if(!has(walk30.walked))walk30.walked='Sí';
+  if(!has(walk30.walkDuration))walk30.walkDuration='90';
+  if(!has(walk30.walkKcalTotal))walk30.walkKcalTotal='518';
+  walk30.ts=Math.max(n(walk30.ts),new Date('2026-08-30T23:00:00+01:00').getTime());
+  base.dayMetrics['7']['d7']=walk30;
+
+  /* Medición manual 04/09/2026 · semana 8. */
+  const m8={...(base.weeklyMeasurements['8']||{})};
+  if(!m8.ts||n(m8.ts)<stamp){Object.assign(m8,{date:'2026-09-04',weight:'93.3',neck:'43.2',arm:'37.5',waist:'99.0',abdomen:'103.5',hip:'94.4',thigh:'62.5',measurementNote:'Medición del 04/09/2026 realizada después de entrenar. Frente al 28/08: peso -0,6 kg, cuello -0,3 cm, brazo -0,3 cm, abdomen -1,5 cm, cadera -1,0 cm y muslo +0,6 cm. La cintura queda fijada en 99,0 cm, pero no se compara con el 28/08 porque aquella medición se descartó expresamente.',ts:stamp});base.weeklyMeasurements['8']=m8;}
+
+  /* Semana 7 · 24–30 agosto: conservar 28–29 vacíos e incorporar 30/08 modelado. */
+  const w7=ensureNutritionWeekShape(base.weeklyNutrition['7'],7);w7.startDate='2026-08-24';
+  const rows7={
+    mon:{kcal:'1832',protein:'106.7',carbs:'268.3',fat:'33.9',status:'Aproximado'},
+    tue:{kcal:'1797',protein:'96.7',carbs:'270.9',fat:'38.1',status:'Estimado'},
+    wed:{kcal:'2339',protein:'105.5',carbs:'345.1',fat:'57.2',status:'Aproximado'},
+    thu:{kcal:'1909',protein:'97.8',carbs:'209.0',fat:'68.7',status:'Aproximado'},
+    fri:{kcal:'',protein:'',carbs:'',fat:'',status:'No disponible',note:'Viernes 28/08: no se recuperó una ingesta fiable. Mantener vacío; no sustituir por una media ni por el capricho del domingo.'},
+    sat:{kcal:'',protein:'',carbs:'',fat:'',status:'No disponible',note:'Sábado 29/08: no hay un día completo recuperable con cantidades suficientes.'},
+    sun:{kcal:'2935',protein:'102',carbs:'367',fat:'116',status:'Modelado',note:'Domingo 30/08. Capricho confirmado: 245 g de porras con chocolate. Total del día modelado ≈2.935 kcal; macros modelados por falta de etiquetas exactas. Actividad registrada aparte: caminata 90 min, reloj 518 kcal; no se descuenta del consumo.'}
+  };
+  Object.entries(rows7).forEach(([k,row])=>{const d={...blankNutritionDay(),...(w7.days[k]||{})};if(!d.ts||n(d.ts)<stamp)Object.assign(d,row,{ts:stamp});w7.days[k]=d});
+  w7.officialTotal='10812';w7.officialAverage='2162';w7.summaryNote='Semana 24–30/08: 5 días con kcal utilizables. 28 y 29 de agosto permanecen sin datos. El 30/08 se conserva como MODELADO (≈2.935 kcal) por el capricho confirmado de porras con chocolate.';w7.ts=Math.max(n(w7.ts),stamp);base.weeklyNutrition['7']=w7;
+
+  /* Semana 8 · 31 agosto–6 septiembre. 02/09 queda incompleto y no cuenta como total diario. */
+  const w8=ensureNutritionWeekShape(base.weeklyNutrition['8'],8);w8.startDate='2026-08-31';
+  const rows8={
+    mon:{kcal:'2075',protein:'102',carbs:'275',fat:'56',status:'Aproximado',note:'Lunes 31/08. Para importación se usa el punto medio del rango previo ≈2.050–2.100 kcal.'},
+    tue:{kcal:'2445',protein:'125',carbs:'332',fat:'64',status:'Aproximado',note:'Martes 01/09. Cena sin huevo ni plátano; el plátano no se consumió.'},
+    wed:{kcal:'',protein:'',carbs:'',fat:'',status:'Día incompleto',note:'Miércoles 02/09. Parcial antes de la cena: ≈1.330 kcal, ≈56 g proteína, ≈181 g hidratos y ≈40 g grasa. La cena propuesta no quedó confirmada y no se contabiliza como total diario.'},
+    thu:{kcal:'2295',protein:'112',carbs:'352',fat:'43',status:'Aproximado',note:'Jueves 03/09. Último día alimentario incluido en el documento.'},
+    fri:{kcal:'',protein:'',carbs:'',fat:'',status:'No incluido',note:'La alimentación del 04/09 no está incluida en el corte nutricional.'},
+    sat:{kcal:'',protein:'',carbs:'',fat:'',status:'No disponible'},
+    sun:{kcal:'',protein:'',carbs:'',fat:'',status:'No disponible'}
+  };
+  Object.entries(rows8).forEach(([k,row])=>{const d={...blankNutritionDay(),...(w8.days[k]||{})};if(!d.ts||n(d.ts)<stamp)Object.assign(d,row,{ts:stamp});w8.days[k]=d});
+  w8.officialTotal='6815';w8.officialAverage='2272';w8.summaryNote='Semana 31/08–06/09: 3 días completos/aproximados contabilizados (31/08, 01/09 y 03/09). El 02/09 queda explícitamente como día incompleto y no entra en el total; la alimentación del 04/09 no forma parte del corte.';w8.ts=Math.max(n(w8.ts),stamp);base.weeklyNutrition['8']=w8;
+  base.nutritionMaxWeek=Math.max(Number(base.nutritionMaxWeek)||0,8);base.nutritionWeek=8;base.nutritionCompare={...(base.nutritionCompare||{}),b:'8'};
+
+  /* Primera lectura de la nueva báscula. */
+  const biaSeed={date:'2026-09-04',time:'09:33',weight:'93.3',bmi:'31.2',bodyFatPct:'28.3',fatMassKg:'26.4',ffmKg:'66.8',softLeanKg:'63.54',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.2',visceralFat:'13',subcutaneousFatPct:'24.5',subcutaneousFatKg:'22.86',waterPct:'51.7',waterL:'48.2',proteinPct:'16.3',proteinKg:'15.2',bonePct:'3.5',boneKg:'3.27',bmr:'1812',smi:'9.3',whr:'0.95',score:'64.4',note:'Arboleaf 04/09/2026 09:33. Medición realizada después de entrenar: interpretar agua, grasa y masa muscular principalmente como tendencia y repetir en condiciones lo más parecidas posible. La relación cintura-cadera 0,95 es la de la báscula y no sustituye el cálculo con cinta manual.',ts:stamp};
+  const currentBia=base.bodyCompositionLog['2026-09-04']||{};
+  if(!bodyCompHasData(currentBia)||n(currentBia.ts)<stamp)base.bodyCompositionLog['2026-09-04']={...currentBia,...biaSeed};
+  base.biaSelectedDate=base.biaSelectedDate||'2026-09-04';
+  base.migrations.data04092026V23=true;base.version=23;
+  return base;
+}
+const _normalizeStateV23=normalizeState;
+normalizeState=function(data){return applySep4DataV23(_normalizeStateV23(data))};
+const _mergeStatesV23=mergeStates;
+mergeStates=function(local,cloud){
+  const out=_mergeStatesV23(local,cloud),c=normalizeState(cloud||{}),l=normalizeState(local||{});
+  out.bodyCompositionLog=mergeObjectsByTs(c.bodyCompositionLog||{},l.bodyCompositionLog||{});
+  out.biaSelectedDate=l.biaSelectedDate||c.biaSelectedDate||'2026-09-04';
+  return applySep4DataV23(out);
+};
+
+function bodyCompDates(){return Object.keys(state.bodyCompositionLog||{}).filter(d=>bodyCompHasData(state.bodyCompositionLog[d])).sort()}
+function latestBodyCompDate(){const a=bodyCompDates();return a[a.length-1]||'2026-09-04'}
+function prevBodyComp(date){const a=bodyCompDates().filter(d=>d<date);return a.length?state.bodyCompositionLog[a[a.length-1]]:null}
+function formatBia(v,dec=1){if(!has(v))return '—';const x=n(v);return Number.isFinite(x)?x.toLocaleString('es-ES',{minimumFractionDigits:dec,maximumFractionDigits:dec}):v}
+function biaTrend(curr,prev,unit='',dec=1){if(!has(curr)||!has(prev))return '';const d=n(curr)-n(prev);if(Math.abs(d)<0.0001)return '<span class="bia-delta flat">• sin cambio</span>';const cls=d>0?'up':'down',arr=d>0?'▲':'▼';return `<span class="bia-delta ${cls}">${arr} ${Math.abs(d).toLocaleString('es-ES',{minimumFractionDigits:dec,maximumFractionDigits:dec})}${unit}</span>`}
+function biaCell(rec,prev,key,unit='',dec=1,secondary=''){const main=has(rec?.[key])?formatBia(rec[key],dec)+(unit?` ${unit}`:''):'—';const sub=secondary&&has(rec?.[secondary])?`<span class="bia-secondary">${formatBia(rec[secondary],dec)} ${secondary.toLowerCase().includes('pct')?'%':'kg'}</span>`:'';return `<span class="bia-primary">${main}</span>${sub}${biaTrend(rec?.[key],prev?.[key],unit?` ${unit}`:'',dec)}`}
+function selectedBiaRecord(){const date=state.biaSelectedDate||latestBodyCompDate();state.bodyCompositionLog=state.bodyCompositionLog||{};return state.bodyCompositionLog[date]||{date,ts:0}}
+function renderBiaForm(){const date=state.biaSelectedDate||latestBodyCompDate(),r=state.bodyCompositionLog?.[date]||{};const di=$('#biaDateInput');if(di)di.value=date;$all('[data-bia]').forEach(inp=>inp.value=has(r[inp.dataset.bia])?r[inp.dataset.bia]:'')}
+function renderBiaDashboard(){
+  const summary=$('#biaSummary'),table=$('#biaWeeklyTable tbody'),latestEl=$('#biaLatestDate'),note=$('#biaMeasurementNote');if(!summary||!table)return;
+  const latestDate=latestBodyCompDate(),r=state.bodyCompositionLog?.[latestDate]||{},p=prevBodyComp(latestDate);
+  if(latestEl)latestEl.textContent=latestDate.split('-').reverse().join('/')+(r.time?` · ${r.time}`:'');
+  summary.innerHTML=metricHTML('Grasa corporal',has(r.bodyFatPct)?`${formatBia(r.bodyFatPct)} %`:'—')+metricHTML('Masa grasa',has(r.fatMassKg)?`${formatBia(r.fatMassKg)} kg`:'—')+metricHTML('Músculo esquelético',has(r.skeletalMuscleKg)?`${formatBia(r.skeletalMuscleKg)} kg · ${formatBia(r.skeletalMusclePct)} %`:'—')+metricHTML('Masa libre de grasa',has(r.ffmKg)?`${formatBia(r.ffmKg)} kg`:'—')+metricHTML('Grasa visceral',has(r.visceralFat)?formatBia(r.visceralFat,0):'—')+metricHTML('Agua corporal',has(r.waterPct)?`${formatBia(r.waterPct)} %`:'—')+metricHTML('BMR',has(r.bmr)?`${formatBia(r.bmr,0)} kcal`:'—')+metricHTML('Puntuación',has(r.score)?`${formatBia(r.score)} /100`:'—');
+  if(note)note.textContent=r.note||'';
+  const dates=bodyCompDates();
+  table.innerHTML=dates.map((d,i)=>{const x=state.bodyCompositionLog[d],prev=i?state.bodyCompositionLog[dates[i-1]]:null;return `<tr><td>${d.split('-').reverse().join('/')}</td><td>${biaCell(x,prev,'weight','kg',1)}</td><td>${biaCell(x,prev,'bodyFatPct','%',1)}</td><td>${biaCell(x,prev,'fatMassKg','kg',1)}</td><td>${biaCell(x,prev,'skeletalMuscleKg','kg',1,'skeletalMusclePct')}</td><td>${biaCell(x,prev,'ffmKg','kg',1)}</td><td>${biaCell(x,prev,'visceralFat','',0)}</td><td>${biaCell(x,prev,'waterPct','%',1)}</td><td>${biaCell(x,prev,'bmr','kcal',0)}</td><td>${biaCell(x,prev,'smi','',1)}</td><td>${biaCell(x,prev,'score','',1)}</td></tr>`}).join('');
+  renderBiaForm();
+}
+function setBiaField(field,value,input){
+  const date=state.biaSelectedDate||$('#biaDateInput')?.value||today();state.bodyCompositionLog=state.bodyCompositionLog||{};const r=state.bodyCompositionLog[date]||{date,ts:0},old=r[field];
+  if(!has(value)&&has(old)){input.value=old;flash('No se borra: escribe otro valor para corregir');return}if(old===value)return;
+  r[field]=value;r.date=date;r.ts=Date.now();state.bodyCompositionLog[date]=r;audit('bodyComposition',{date,field,from:old,to:value});save();renderBiaDashboard();
+}
+
+/* Composición: ya no se renderiza ningún cuerpo/figura artificial. */
+renderBodyModel=function(){};
+renderBodyDashboard=function(){
+  const box=$('#bodySummary');if(!box)return;const latestW=latestMeasurementWeekNum(),latest=state.weeklyMeasurements?.[String(latestW)]||{},prev=previousMeasurementForWeek(Number(latestW))||{};
+  const delta=(k,u)=>has(latest[k])&&has(prev[k])?deltaHTML(latest[k],prev[k],u):'—';
+  box.innerHTML=metricHTML('Fecha',latest.date?latest.date.split('-').reverse().join('/'):'—')+metricHTML('Peso',has(latest.weight)?`${latest.weight} kg`:'—')+metricHTML('Cambio peso',delta('weight',' kg'))+metricHTML('Cintura',has(latest.waist)?`${latest.waist} cm`:'—')+metricHTML('Abdomen relajado',has(latest.abdomen)?`${latest.abdomen} cm`:'—')+metricHTML('Cambio abdomen',delta('abdomen',' cm'))+metricHTML('Cadera',has(latest.hip)?`${latest.hip} cm`:'—')+metricHTML('Muslo',has(latest.thigh)?`${latest.thigh} cm`:'—');
+  const mn=$('#bodyMeasurementNote');if(mn)mn.textContent=latest.measurementNote||'';renderBiaDashboard();renderBodyWeeklyTable();
+};
+
+/* Pauta actual también visible en la semana 8. */
+treatmentForWeek=function(w){
+  const rows={
+    2:['Miércoles: Reta 2 mg','Sábado: Reta 4 mg'],
+    3:['Reta 4 mg'],
+    4:['Reta 5 mg','Inicio MOTS-C 5 mg'],
+    5:['Sábado: Reta 5 mg','MOTS-C: 5 mg cada 3 días','13/08: inicio CJC + Ipa 0,20 mg totales/día (0,10 mg + 0,10 mg)','13/08: inicio KLOW 2,00 mg totales/día (GHK-Cu 1,25 mg + BPC-157 0,25 mg + TB-500 0,25 mg + KPV 0,25 mg)'],
+    6:['Sábado: Reta 5 mg','MOTS-C: 5 mg cada 3 días','Desde 20/08: CJC + Ipa 0,50 mg totales/día (0,25 mg + 0,25 mg)','Desde 20/08: KLOW 2,80 mg totales/día (GHK-Cu 1,75 mg + BPC-157 0,35 mg + TB-500 0,35 mg + KPV 0,35 mg)'],
+    7:['Sábado: Reta 5 mg','MOTS-C: 5 mg cada 3 días','CJC + Ipa: 0,50 mg totales/día (0,25 mg + 0,25 mg)','KLOW: 2,80 mg totales/día (GHK-Cu 1,75 mg + BPC-157 0,35 mg + TB-500 0,35 mg + KPV 0,35 mg)'],
+    8:['Sábado: Reta 5 mg','MOTS-C: 5 mg cada 3 días','CJC + Ipa: 0,50 mg totales/día (0,25 mg CJC + 0,25 mg Ipa)','KLOW: 2,80 mg totales/día (GHK-Cu 1,75 mg + BPC-157 0,35 mg + TB-500 0,35 mg + KPV 0,35 mg)']
+  }[Number(w)]||[];
+  return rows.length?`<div class="snapshot-treatment">${rows.map(x=>`<span>${x}</span>`).join('')}</div>`:'';
+};
+
+/* Alimentación: los días no disponibles/incompletos no se convierten en totales. */
+const _refreshAllV23=refreshAll;
+refreshAll=function(){_refreshAllV23();renderNutritionEditor();renderNutritionComparison();renderBodyDashboard();renderGeneralSummary();renderSportDashboard()};
+const _attachEventsV23=attachEvents;
+attachEvents=function(){
+  _attachEventsV23();
+  $('#biaDateInput')?.addEventListener('change',e=>{state.biaSelectedDate=e.target.value||latestBodyCompDate();saveLocalOnly();renderBiaDashboard()});
+  $all('[data-bia]').forEach(inp=>inp.addEventListener('change',e=>setBiaField(e.target.dataset.bia,e.target.value,e.target)));
+};
 
 function bindLogin(){setupScrollTopButton();$('#loginBtn').addEventListener('click',()=>{if($('#pinInput').value===AUTH_PIN)unlock();else{$('#loginError').textContent='Contraseña incorrecta';$('#pinInput').select()}});$('#pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});if(sessionStorage.getItem('plan_borja_unlocked')==='1')unlock()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindLogin);else bindLogin();
