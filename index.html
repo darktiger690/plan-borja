@@ -28,6 +28,10 @@ body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bot
 .floating-top{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:30;border:1px solid #416690;background:#122844;color:white;border-radius:999px;padding:10px 13px;font-weight:900;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.2s}.floating-top.show{opacity:1;pointer-events:auto}
 @media(max-width:900px){.quick-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:24px}}
 @media(max-width:600px){.shell{padding:12px 10px 88px}.topbar{align-items:flex-start}.brand b{font-size:17px}.sync{max-width:150px;overflow:hidden;text-overflow:ellipsis}.hero{padding:18px}.hero h1{font-size:22px}.grid{grid-template-columns:1fr 1fr}.week-metrics{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr 1fr}.fields{grid-template-columns:1fr 1fr}input,select{font-size:16px}}
+
+.composition-note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.55}.bia-form{grid-template-columns:repeat(4,minmax(0,1fr))}.history .delta{display:block;margin-top:3px;font-size:10px;font-weight:900}.history .delta.up{color:#ff7b88}.history .delta.down{color:#62d99a}.history .delta.flat{color:var(--faint)}.comp-latest .delta{font-size:11px;font-weight:900}.comp-latest .delta.up{color:#ff7b88}.comp-latest .delta.down{color:#62d99a}.comp-latest .delta.flat{color:var(--faint)}
+@media(max-width:900px){.bia-form{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.bia-form{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -76,15 +80,45 @@ body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bot
   </section>
 
   <section class="panel" id="panel-body">
-    <div class="hero"><div class="hero-kicker">Composición corporal</div><h1>Mediciones manuales y Arboleaf</h1><p>Se mantiene tu histórico de composición corporal. El nuevo ciclo de entrenamiento no borra estas mediciones.</p></div>
-    <h2 class="section-title">Última medición manual</h2><div class="card"><div class="comp-latest" id="manualLatest"></div></div>
-    <details class="editor"><summary>+ Añadir / editar medición manual</summary><div class="form-grid" id="manualForm">
-      <label><span>Fecha</span><input type="date" id="manualDate"></label><label><span>Peso</span><input type="number" step="0.1" data-manual="weight"></label><label><span>Cuello</span><input type="number" step="0.1" data-manual="neck"></label><label><span>Brazo</span><input type="number" step="0.1" data-manual="arm"></label><label><span>Cintura</span><input type="number" step="0.1" data-manual="waist"></label><label><span>Abdomen relajado</span><input type="number" step="0.1" data-manual="abdomen"></label><label><span>Cadera</span><input type="number" step="0.1" data-manual="hip"></label><label><span>Muslo</span><input type="number" step="0.1" data-manual="thigh"></label>
-    </div><div class="save-row"><button class="btn" id="saveManual">Guardar medición</button></div></details>
-    <div class="table-wrap"><table class="history"><thead><tr><th>Fecha</th><th>Peso</th><th>Cuello</th><th>Brazo</th><th>Cintura</th><th>Abdomen</th><th>Cadera</th><th>Muslo</th></tr></thead><tbody id="manualHistory"></tbody></table></div>
+    <div class="hero"><div class="hero-kicker">Composición corporal</div><h1>Peso, perímetros y composición Arboleaf</h1><p>El nuevo ciclo de entrenamiento empieza el 5 de octubre, pero el seguimiento corporal conserva todo el histórico anterior. Las mediciones manuales y la bioimpedancia se mantienen separadas para comparar tendencias correctamente.</p><div class="hero-meta"><span class="chip">Histórico conservado</span><span class="chip">Perímetros manuales</span><span class="chip">BIA Arboleaf</span></div></div>
 
-    <h2 class="section-title">Última composición Arboleaf</h2><div class="card"><div class="comp-latest" id="biaLatest"></div></div>
-    <div class="table-wrap"><table class="history"><thead><tr><th>Fecha</th><th>Peso</th><th>Grasa %</th><th>Masa grasa</th><th>Músculo esquelético</th><th>Índice masa muscular</th><th>Masa libre grasa</th><th>Grasa visceral</th><th>Agua %</th><th>BMR</th><th>SMI</th><th>Puntuación</th></tr></thead><tbody id="biaHistory"></tbody></table></div>
+    <h2 class="section-title">Última medición manual</h2>
+    <div class="card"><div class="comp-latest" id="manualLatest"></div></div>
+    <details class="editor"><summary>+ Añadir / editar medición manual</summary><div class="form-grid" id="manualForm">
+      <label><span>Fecha</span><input type="date" id="manualDate"></label>
+      <label><span>Peso</span><input type="number" step="0.01" data-manual="weight" placeholder="kg"></label>
+      <label><span>Cuello</span><input type="number" step="0.1" data-manual="neck" placeholder="cm"></label>
+      <label><span>Brazo</span><input type="number" step="0.1" data-manual="arm" placeholder="cm"></label>
+      <label><span>Cintura</span><input type="number" step="0.1" data-manual="waist" placeholder="cm"></label>
+      <label><span>Abdomen relajado</span><input type="number" step="0.1" data-manual="abdomen" placeholder="cm"></label>
+      <label><span>Cadera</span><input type="number" step="0.1" data-manual="hip" placeholder="cm"></label>
+      <label><span>Muslo</span><input type="number" step="0.1" data-manual="thigh" placeholder="cm"></label>
+    </div><div class="save-row"><button class="btn" id="saveManual">Guardar medición</button></div></details>
+
+    <h2 class="section-title">Evolución de peso y perímetros</h2>
+    <div class="table-wrap"><table class="history"><thead><tr><th>Fecha</th><th>Peso</th><th>Cuello</th><th>Brazo</th><th>Cintura</th><th>Abdomen relajado</th><th>Cadera</th><th>Muslo</th></tr></thead><tbody id="manualHistory"></tbody></table></div>
+
+    <h2 class="section-title">Última composición Arboleaf</h2>
+    <div class="card"><div class="comp-latest" id="biaLatest"></div><div class="composition-note" id="biaLatestNote"></div></div>
+    <details class="editor"><summary>+ Añadir / editar composición Arboleaf</summary>
+      <div class="form-grid bia-form">
+        <label><span>Fecha</span><input type="date" id="biaDate"></label><label><span>Hora</span><input type="time" data-bia="time"></label>
+        <label><span>Peso BIA</span><input type="number" step="0.01" data-bia="weight" placeholder="kg"></label><label><span>IMC</span><input type="number" step="0.1" data-bia="bmi"></label>
+        <label><span>Grasa corporal</span><input type="number" step="0.1" data-bia="bodyFatPct" placeholder="%"></label><label><span>Masa grasa</span><input type="number" step="0.01" data-bia="fatMassKg" placeholder="kg"></label>
+        <label><span>Masa libre de grasa</span><input type="number" step="0.01" data-bia="ffmKg" placeholder="kg"></label><label><span>Masa magra blanda</span><input type="number" step="0.01" data-bia="softLeanKg" placeholder="kg"></label>
+        <label><span>Músculo esquelético</span><input type="number" step="0.1" data-bia="skeletalMuscleKg" placeholder="kg"></label><label><span>Músculo esquelético</span><input type="number" step="0.1" data-bia="skeletalMusclePct" placeholder="%"></label>
+        <label><span>Índice masa muscular</span><input type="number" step="0.1" data-bia="muscleMassPct" placeholder="%"></label><label><span>Grasa visceral</span><input type="number" step="1" data-bia="visceralFat"></label>
+        <label><span>Grasa subcutánea</span><input type="number" step="0.1" data-bia="subcutaneousFatPct" placeholder="%"></label><label><span>Masa grasa subcutánea</span><input type="number" step="0.01" data-bia="subcutaneousFatKg" placeholder="kg"></label>
+        <label><span>Agua corporal</span><input type="number" step="0.1" data-bia="waterPct" placeholder="%"></label><label><span>Agua corporal</span><input type="number" step="0.1" data-bia="waterL" placeholder="L"></label>
+        <label><span>Proteína</span><input type="number" step="0.1" data-bia="proteinPct" placeholder="%"></label><label><span>Proteína</span><input type="number" step="0.1" data-bia="proteinKg" placeholder="kg"></label>
+        <label><span>Masa ósea</span><input type="number" step="0.1" data-bia="bonePct" placeholder="%"></label><label><span>Masa ósea</span><input type="number" step="0.01" data-bia="boneKg" placeholder="kg"></label>
+        <label><span>BMR</span><input type="number" step="1" data-bia="bmr" placeholder="kcal"></label><label><span>SMI</span><input type="number" step="0.1" data-bia="smi"></label>
+        <label><span>Relación cintura-cadera BIA</span><input type="number" step="0.01" data-bia="whr"></label><label><span>Puntuación física</span><input type="number" step="0.1" data-bia="score" placeholder="/100"></label>
+      </div><div class="save-row"><button class="btn" id="saveBia">Guardar composición</button></div>
+    </details>
+
+    <h2 class="section-title">Histórico de composición BIA</h2>
+    <div class="table-wrap"><table class="history"><thead><tr><th>Fecha</th><th>Peso</th><th>IMC</th><th>Grasa %</th><th>Masa grasa</th><th>Músculo esquelético</th><th>Índice masa muscular</th><th>Masa libre grasa</th><th>Grasa visceral</th><th>Grasa subcutánea</th><th>Agua</th><th>Proteína</th><th>Masa ósea</th><th>BMR</th><th>SMI</th><th>Puntuación</th></tr></thead><tbody id="biaHistory"></tbody></table></div>
   </section>
 </div>
 <button class="floating-top" id="goTop">↑ Arriba</button>
@@ -94,7 +128,7 @@ const PIN='8888';
 const SUPABASE_URL='https://meihciyntpvcvfqqxwqa.supabase.co';
 const SUPABASE_KEY='sb_publishable_BFQkVq8LpHf-CfSDgSZBDg_7JGCyR7a';
 const CLOUD_TABLE='plan_borja_state', CLOUD_ID='main';
-const LOCAL_KEY='plan_borja_oct2026_v31';
+const LOCAL_KEY='plan_borja_oct2026_v32';
 const CYCLE_KEY='cycle_2026_10_05';
 const START='2026-10-05';
 const DAY_NAMES=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
@@ -132,6 +166,34 @@ function maxWeek(){return Math.max(1,cycle.weekCount||1,...Object.keys(cycle.tra
 function ensureCycle(raw){const c=raw&&typeof raw==='object'?raw:{};c.startDate=START;c.currentWeek=Number(c.currentWeek)||1;c.currentDay=c.currentDay||'d1';c.weekCount=Math.max(1,Number(c.weekCount)||1);c.training=c.training||{};c.metrics=c.metrics||{};return c}
 function localLoad(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}')}catch{return {}}}
 function localSave(){try{localStorage.setItem(LOCAL_KEY,JSON.stringify({cycle,rootSnapshot:{weeklyMeasurements:rootState.weeklyMeasurements||{},manualMeasurementsV2:rootState.manualMeasurementsV2||{},bodyCompositionLog:rootState.bodyCompositionLog||{}},ts:Date.now()}))}catch{}}
+
+function mergeMissingRecord(target,seed){const out={...(target||{})};for(const [k,v] of Object.entries(seed)){if(!has(out[k])&&has(v))out[k]=v}return out}
+function ensureCompositionHistory(root){
+  root=root&&typeof root==='object'?root:{};root.manualMeasurementsV2=root.manualMeasurementsV2||{};root.bodyCompositionLog=root.bodyCompositionLog||{};
+  const manual={
+    '2026-07-10':{date:'2026-07-10',weight:'96.25',neck:'44',arm:'37.5',waist:'104',abdomen:'108',hip:'97',thigh:'61'},
+    '2026-07-17':{date:'2026-07-17',weight:'95.9',neck:'44.5',arm:'39',waist:'102',abdomen:'108',hip:'97',thigh:'62'},
+    '2026-07-24':{date:'2026-07-24',weight:'96.0',neck:'45.0',arm:'39.4',waist:'102.1',abdomen:'108.5',hip:'97.5',thigh:'61.7'},
+    '2026-07-31':{date:'2026-07-31',weight:'96.45',neck:'45.5',arm:'37.5',waist:'100.5',abdomen:'108.7',hip:'97.5',thigh:'61.5'},
+    '2026-08-07':{date:'2026-08-07',weight:'95.5',neck:'45.0',arm:'37.8',waist:'101.5',abdomen:'107.8',hip:'97.4',thigh:'60.5'},
+    '2026-08-14':{date:'2026-08-14',weight:'94.0',neck:'43.5',arm:'38.5',waist:'99.5',abdomen:'107.4',hip:'96.5',thigh:'62.0'},
+    '2026-08-21':{date:'2026-08-21',weight:'93.8',neck:'44.3',arm:'38.8',waist:'99.3',abdomen:'105.6',hip:'96.5',thigh:'62.5'},
+    '2026-08-28':{date:'2026-08-28',weight:'93.9',neck:'43.5',arm:'37.8',abdomen:'105.0',hip:'95.4',thigh:'61.9'},
+    '2026-09-04':{date:'2026-09-04',weight:'93.3',neck:'43.2',arm:'37.5',waist:'99.0',abdomen:'103.5',hip:'94.4',thigh:'62.5'},
+    '2026-09-11':{date:'2026-09-11',weight:'92.95',abdomen:'103.5'},
+    '2026-09-18':{date:'2026-09-18',weight:'92.0',neck:'43.1',arm:'39.5',waist:'100.0',abdomen:'103.0',hip:'95.2',thigh:'61.5'},
+    '2026-10-02':{date:'2026-10-02',weight:'92.5',neck:'43.5',arm:'37.5',waist:'99.5',abdomen:'101.5',hip:'94.5',thigh:'61.5'}
+  };
+  for(const [d,r] of Object.entries(manual))root.manualMeasurementsV2[d]=mergeMissingRecord(root.manualMeasurementsV2[d],{...r,ts:new Date(d+'T09:30:00+01:00').getTime()});
+  const bia={
+    '2026-09-04':{date:'2026-09-04',time:'09:33',weight:'93.3',bmi:'31.2',bodyFatPct:'28.3',fatMassKg:'26.4',ffmKg:'66.8',softLeanKg:'63.54',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.2',visceralFat:'13',subcutaneousFatPct:'24.5',subcutaneousFatKg:'22.86',waterPct:'51.7',waterL:'48.2',proteinPct:'16.3',proteinKg:'15.2',bonePct:'3.5',boneKg:'3.27',bmr:'1812',smi:'9.3',whr:'0.95',score:'64.4'},
+    '2026-09-11':{date:'2026-09-11',time:'09:33',weight:'92.95',bmi:'31.1',bodyFatPct:'28.2',fatMassKg:'26.21',ffmKg:'66.7',softLeanKg:'63.39',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.4',visceralFat:'13',subcutaneousFatPct:'24.3',subcutaneousFatKg:'22.59',waterPct:'51.9',waterL:'48.2',proteinPct:'16.4',proteinKg:'15.2',bonePct:'3.6',boneKg:'3.35',bmr:'1811',smi:'9.2',whr:'0.95',score:'64.7'},
+    '2026-09-18':{date:'2026-09-18',time:'09:45',weight:'92.05',bmi:'30.8',bodyFatPct:'27.7',fatMassKg:'25.50',ffmKg:'66.5',softLeanKg:'63.24',skeletalMuscleKg:'42.9',skeletalMusclePct:'46.6',muscleMassPct:'68.7',visceralFat:'13',subcutaneousFatPct:'23.9',subcutaneousFatKg:'22.00',waterPct:'52.1',waterL:'48.0',proteinPct:'16.4',proteinKg:'15.1',bonePct:'3.6',boneKg:'3.31',bmr:'1805',smi:'9.2',whr:'0.95',score:'65.3'},
+    '2026-10-02':{date:'2026-10-02',time:'09:32',weight:'92.5',bmi:'30.9',bodyFatPct:'27.9',fatMassKg:'25.81',ffmKg:'66.7',softLeanKg:'63.27',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.6',muscleMassPct:'68.4',visceralFat:'13',subcutaneousFatPct:'24.1',subcutaneousFatKg:'22.29',waterPct:'52.0',waterL:'48.1',proteinPct:'16.3',proteinKg:'15.1',bonePct:'3.6',boneKg:'3.33',bmr:'1810',smi:'9.2',whr:'0.95',score:'65.1'}
+  };
+  for(const [d,r] of Object.entries(bia))root.bodyCompositionLog[d]=mergeMissingRecord(root.bodyCompositionLog[d],{...r,ts:new Date(d+'T09:32:00+01:00').getTime()});
+  return root;
+}
 function setSync(txt,cls=''){const el=$('#syncBadge');el.textContent=txt;el.className='sync '+cls}
 function headers(extra={}){return {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',...extra}}
 async function loadCloud(){
@@ -141,6 +203,7 @@ async function loadCloud(){
     const url=`${SUPABASE_URL}/rest/v1/${CLOUD_TABLE}?id=eq.${encodeURIComponent(CLOUD_ID)}&select=data,updated_at`;
     const r=await fetch(url,{headers:headers()}); if(!r.ok)throw new Error(await r.text()); const rows=await r.json();
     rootState=(rows?.[0]?.data&&typeof rows[0].data==='object')?rows[0].data:{};
+    rootState=ensureCompositionHistory(rootState);
     cycle=ensureCycle(rootState[CYCLE_KEY]);
     if(local?.cycle){
       const lc=ensureCycle(local.cycle);
@@ -148,7 +211,7 @@ async function loadCloud(){
     }
     rootState[CYCLE_KEY]=cycle; renderAll(); localSave(); setSync('nube ✓','ok');
   }catch(e){
-    rootState={...(local.rootSnapshot||{})}; cycle=ensureCycle(local.cycle); rootState[CYCLE_KEY]=cycle; renderAll(); setSync('modo local','warn');
+    rootState=ensureCompositionHistory({...(local.rootSnapshot||{})}); cycle=ensureCycle(local.cycle); rootState[CYCLE_KEY]=cycle; renderAll(); setSync('modo local','warn');
   }
 }
 function mergeCycle(a,b){a=ensureCycle(a);b=ensureCycle(b);const out={...a,...b,training:{...a.training},metrics:{...a.metrics}};for(const w of Object.keys(b.training||{})){out.training[w]={...(a.training?.[w]||{}),...(b.training[w]||{})}}for(const w of Object.keys(b.metrics||{})){out.metrics[w]={...(a.metrics?.[w]||{}),...(b.metrics[w]||{})}}out.weekCount=Math.max(a.weekCount||1,b.weekCount||1);return out}
@@ -174,10 +237,22 @@ function renderSummary(){const box=$('#weekCards');if(!box)return;const m=maxWee
 function manualRecords(){const map={};Object.values(rootState.weeklyMeasurements||{}).forEach(r=>{if(r&&r.date)map[r.date]={...r}});Object.entries(rootState.manualMeasurementsV2||{}).forEach(([d,r])=>map[d]={...(map[d]||{}),...r,date:d});return Object.values(map).filter(r=>r.date).sort((a,b)=>a.date.localeCompare(b.date))}
 function delta(curr,prev,unit=''){if(!has(curr)||!has(prev))return '';const d=num(curr)-num(prev);if(Math.abs(d)<.001)return `<span class="delta flat">• 0${unit}</span>`;return `<span class="delta ${d>0?'up':'down'}">${d>0?'▲':'▼'} ${Math.abs(d).toLocaleString('es-ES',{maximumFractionDigits:2})}${unit}</span>`}
 function latestCard(label,val,sub=''){return `<div class="metric"><div class="label">${label}</div><div class="value">${val}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`}
-function renderManual(){const arr=manualRecords(),latest=arr.at(-1)||{},prev=arr.at(-2)||{};$('#manualLatest').innerHTML=latestCard('Fecha',latest.date?fmtDate(latest.date):'—')+latestCard('Peso',has(latest.weight)?latest.weight+' kg':'—',delta(latest.weight,prev.weight,' kg'))+latestCard('Cintura',has(latest.waist)?latest.waist+' cm':'—',delta(latest.waist,prev.waist,' cm'))+latestCard('Abdomen',has(latest.abdomen)?latest.abdomen+' cm':'—',delta(latest.abdomen,prev.abdomen,' cm'))+latestCard('Brazo',has(latest.arm)?latest.arm+' cm':'—',delta(latest.arm,prev.arm,' cm'))+latestCard('Muslo',has(latest.thigh)?latest.thigh+' cm':'—',delta(latest.thigh,prev.thigh,' cm'));$('#manualHistory').innerHTML=arr.slice().reverse().map((r,i,a)=>{const p=arr[arr.indexOf(r)-1]||{};return `<tr><td>${r.date.split('-').reverse().join('/')}</td><td>${has(r.weight)?r.weight+' kg '+delta(r.weight,p.weight,' kg'):'—'}</td><td>${has(r.neck)?r.neck+' cm':'—'}</td><td>${has(r.arm)?r.arm+' cm':'—'}</td><td>${has(r.waist)?r.waist+' cm':'—'}</td><td>${has(r.abdomen)?r.abdomen+' cm':'—'}</td><td>${has(r.hip)?r.hip+' cm':'—'}</td><td>${has(r.thigh)?r.thigh+' cm':'—'}</td></tr>`}).join('')}
+function measurementValue(r,key,unit,prev){if(!has(r?.[key]))return '—';return `${r[key]} ${unit}${prev?` ${delta(r[key],prev[key],' '+unit)}`:''}`}
+function renderManual(){
+  const arr=manualRecords(),latest=arr.at(-1)||{},prev=arr.at(-2)||{};
+  $('#manualLatest').innerHTML=latestCard('Fecha',latest.date?latest.date.split('-').reverse().join('/'):'—')+latestCard('Peso',has(latest.weight)?latest.weight+' kg':'—',delta(latest.weight,prev.weight,' kg'))+latestCard('Cuello',has(latest.neck)?latest.neck+' cm':'—',delta(latest.neck,prev.neck,' cm'))+latestCard('Brazo',has(latest.arm)?latest.arm+' cm':'—',delta(latest.arm,prev.arm,' cm'))+latestCard('Cintura',has(latest.waist)?latest.waist+' cm':'—',delta(latest.waist,prev.waist,' cm'))+latestCard('Abdomen relajado',has(latest.abdomen)?latest.abdomen+' cm':'—',delta(latest.abdomen,prev.abdomen,' cm'))+latestCard('Cadera',has(latest.hip)?latest.hip+' cm':'—',delta(latest.hip,prev.hip,' cm'))+latestCard('Muslo',has(latest.thigh)?latest.thigh+' cm':'—',delta(latest.thigh,prev.thigh,' cm'));
+  $('#manualHistory').innerHTML=arr.slice().reverse().map(r=>{const i=arr.findIndex(x=>x.date===r.date),p=i>0?arr[i-1]:null;return `<tr><td>${r.date.split('-').reverse().join('/')}</td><td>${measurementValue(r,'weight','kg',p)}</td><td>${measurementValue(r,'neck','cm',p)}</td><td>${measurementValue(r,'arm','cm',p)}</td><td>${measurementValue(r,'waist','cm',p)}</td><td>${measurementValue(r,'abdomen','cm',p)}</td><td>${measurementValue(r,'hip','cm',p)}</td><td>${measurementValue(r,'thigh','cm',p)}</td></tr>`}).join('');
+}
 function bodyDates(){return Object.keys(rootState.bodyCompositionLog||{}).sort()}
 function biaCell(r,p,key,unit='',dec=1){if(!has(r?.[key]))return '—';const value=num(r[key]).toLocaleString('es-ES',{minimumFractionDigits:dec,maximumFractionDigits:dec})+(unit?' '+unit:'');return value+' '+delta(r[key],p?.[key],unit?' '+unit:'')}
-function renderBia(){const dates=bodyDates(),last=dates.at(-1),prevDate=dates.at(-2),r=last?rootState.bodyCompositionLog[last]:{},p=prevDate?rootState.bodyCompositionLog[prevDate]:{};$('#biaLatest').innerHTML=latestCard('Fecha',last?fmtDate(last):'—')+latestCard('Peso BIA',has(r.weight)?r.weight+' kg':'—',delta(r.weight,p.weight,' kg'))+latestCard('Grasa corporal',has(r.bodyFatPct)?r.bodyFatPct+' %':'—',delta(r.bodyFatPct,p.bodyFatPct,' pp'))+latestCard('Masa grasa',has(r.fatMassKg)?r.fatMassKg+' kg':'—',delta(r.fatMassKg,p.fatMassKg,' kg'))+latestCard('Músculo esquelético',has(r.skeletalMuscleKg)?r.skeletalMuscleKg+' kg':'—',delta(r.skeletalMuscleKg,p.skeletalMuscleKg,' kg'))+latestCard('Índice masa muscular',has(r.muscleMassPct)?r.muscleMassPct+' %':'—',delta(r.muscleMassPct,p.muscleMassPct,' pp'));$('#biaHistory').innerHTML=dates.slice().reverse().map((d)=>{const x=rootState.bodyCompositionLog[d],i=dates.indexOf(d),q=i>0?rootState.bodyCompositionLog[dates[i-1]]:{};return `<tr><td>${d.split('-').reverse().join('/')}</td><td>${biaCell(x,q,'weight','kg',1)}</td><td>${biaCell(x,q,'bodyFatPct','%',1)}</td><td>${biaCell(x,q,'fatMassKg','kg',2)}</td><td>${biaCell(x,q,'skeletalMuscleKg','kg',1)}</td><td>${biaCell(x,q,'muscleMassPct','%',1)}</td><td>${biaCell(x,q,'ffmKg','kg',1)}</td><td>${biaCell(x,q,'visceralFat','',0)}</td><td>${biaCell(x,q,'waterPct','%',1)}</td><td>${biaCell(x,q,'bmr','kcal',0)}</td><td>${biaCell(x,q,'smi','',1)}</td><td>${biaCell(x,q,'score','',1)}</td></tr>`}).join('')}
+function biaPair(r,p,keyPct,keyKg,label){const a=has(r?.[keyPct])?r[keyPct]+' %':'—',b=has(r?.[keyKg])?r[keyKg]+' kg':'';const trend=has(r?.[keyPct])?delta(r[keyPct],p?.[keyPct],' pp'):'';return latestCard(label,b?`${a} · ${b}`:a,trend)}
+function renderBia(){
+  const dates=bodyDates(),last=dates.at(-1),prevDate=dates.at(-2),r=last?rootState.bodyCompositionLog[last]:{},p=prevDate?rootState.bodyCompositionLog[prevDate]:{};
+  $('#biaLatest').innerHTML=latestCard('Fecha',last?last.split('-').reverse().join('/')+(r.time?' · '+r.time:''):'—')+latestCard('Peso BIA',has(r.weight)?r.weight+' kg':'—',delta(r.weight,p.weight,' kg'))+latestCard('IMC',has(r.bmi)?r.bmi:'—',delta(r.bmi,p.bmi,''))+biaPair(r,p,'bodyFatPct','fatMassKg','Grasa corporal')+latestCard('Músculo esquelético',has(r.skeletalMuscleKg)?`${r.skeletalMuscleKg} kg${has(r.skeletalMusclePct)?' · '+r.skeletalMusclePct+' %':''}`:'—',delta(r.skeletalMuscleKg,p.skeletalMuscleKg,' kg'))+latestCard('Índice masa muscular',has(r.muscleMassPct)?r.muscleMassPct+' %':'—',delta(r.muscleMassPct,p.muscleMassPct,' pp'))+latestCard('Masa libre grasa',has(r.ffmKg)?r.ffmKg+' kg':'—',delta(r.ffmKg,p.ffmKg,' kg'))+latestCard('Grasa visceral',has(r.visceralFat)?r.visceralFat:'—',delta(r.visceralFat,p.visceralFat,''))+latestCard('Agua corporal',has(r.waterPct)?`${r.waterPct} %${has(r.waterL)?' · '+r.waterL+' L':''}`:'—',delta(r.waterPct,p.waterPct,' pp'))+latestCard('BMR',has(r.bmr)?r.bmr+' kcal':'—',delta(r.bmr,p.bmr,' kcal'))+latestCard('SMI',has(r.smi)?r.smi:'—',delta(r.smi,p.smi,''))+latestCard('Puntuación',has(r.score)?r.score+' /100':'—',delta(r.score,p.score,''));
+  const note=$('#biaLatestNote');if(note)note.textContent=r.note||'Bioimpedancia: compárala preferentemente en condiciones similares de hidratación, comida y entrenamiento.';
+  $('#biaHistory').innerHTML=dates.slice().reverse().map(d=>{const x=rootState.bodyCompositionLog[d],i=dates.indexOf(d),q=i>0?rootState.bodyCompositionLog[dates[i-1]]:{};const sm=has(x.skeletalMuscleKg)?`${x.skeletalMuscleKg} kg${has(x.skeletalMusclePct)?' / '+x.skeletalMusclePct+' %':''} ${delta(x.skeletalMuscleKg,q.skeletalMuscleKg,' kg')}`:'—';const sub=has(x.subcutaneousFatPct)?`${x.subcutaneousFatPct} %${has(x.subcutaneousFatKg)?' / '+x.subcutaneousFatKg+' kg':''}`:'—';const wat=has(x.waterPct)?`${x.waterPct} %${has(x.waterL)?' / '+x.waterL+' L':''}`:'—';const prot=has(x.proteinPct)?`${x.proteinPct} %${has(x.proteinKg)?' / '+x.proteinKg+' kg':''}`:'—';const bone=has(x.bonePct)?`${x.bonePct} %${has(x.boneKg)?' / '+x.boneKg+' kg':''}`:'—';return `<tr><td>${d.split('-').reverse().join('/')}</td><td>${biaCell(x,q,'weight','kg',2)}</td><td>${biaCell(x,q,'bmi','',1)}</td><td>${biaCell(x,q,'bodyFatPct','%',1)}</td><td>${biaCell(x,q,'fatMassKg','kg',2)}</td><td>${sm}</td><td>${biaCell(x,q,'muscleMassPct','%',1)}</td><td>${biaCell(x,q,'ffmKg','kg',1)}</td><td>${biaCell(x,q,'visceralFat','',0)}</td><td>${sub}</td><td>${wat}</td><td>${prot}</td><td>${bone}</td><td>${biaCell(x,q,'bmr','kcal',0)}</td><td>${biaCell(x,q,'smi','',1)}</td><td>${biaCell(x,q,'score','',1)}</td></tr>`}).join('');
+  if($('#biaDate')){const d=$('#biaDate').value||last||'';if(!$('#biaDate').value)$('#biaDate').value=d;const x=rootState.bodyCompositionLog[d]||{};$$('[data-bia]').forEach(inp=>inp.value=has(x[inp.dataset.bia])?x[inp.dataset.bia]:'')}
+}
 function renderBody(){renderManual();renderBia()}
 function renderAll(){renderWeekSelect();renderDayStrip();renderQuick();renderDaySummary();renderWorkout();renderSummary();renderBody()}
 function bind(){
@@ -190,9 +265,11 @@ function bind(){
   $('#extraGym').addEventListener('change',e=>{const m=metricObj();m.extraGym=e.target.checked;m.ts=Date.now();renderQuick();renderDaySummary();renderSummary();queueSave()});
   $('#saveManual').addEventListener('click',()=>{const d=$('#manualDate').value;if(!d)return alert('Selecciona una fecha');rootState.manualMeasurementsV2=rootState.manualMeasurementsV2||{};const rec={date:d,ts:Date.now()};$$('[data-manual]').forEach(i=>{if(has(i.value))rec[i.dataset.manual]=i.value});rootState.manualMeasurementsV2[d]={...(rootState.manualMeasurementsV2[d]||{}),...rec};renderBody();queueSave()});
   $('#manualDate').addEventListener('change',e=>{const d=e.target.value,all=manualRecords(),r=all.find(x=>x.date===d)||{};$$('[data-manual]').forEach(i=>i.value=has(r[i.dataset.manual])?r[i.dataset.manual]:'')});
+  $('#saveBia')?.addEventListener('click',()=>{const d=$('#biaDate').value;if(!d)return alert('Selecciona una fecha');rootState.bodyCompositionLog=rootState.bodyCompositionLog||{};const rec={...(rootState.bodyCompositionLog[d]||{}),date:d,ts:Date.now()};$$('[data-bia]').forEach(i=>{if(has(i.value))rec[i.dataset.bia]=i.value});rootState.bodyCompositionLog[d]=rec;renderBody();queueSave()});
+  $('#biaDate')?.addEventListener('change',e=>{const r=rootState.bodyCompositionLog?.[e.target.value]||{};$$('[data-bia]').forEach(i=>i.value=has(r[i.dataset.bia])?r[i.dataset.bia]:'')});
   window.addEventListener('scroll',()=>$('#goTop').classList.toggle('show',scrollY>600));$('#goTop').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
 }
-function unlock(){sessionStorage.setItem('pb_unlocked','1');$('#login').classList.add('hidden');$('#app').classList.remove('hidden');bind();renderAll();loadCloud()}
+function unlock(){sessionStorage.setItem('pb_unlocked','1');$('#login').classList.add('hidden');$('#app').classList.remove('hidden');rootState=ensureCompositionHistory(rootState);bind();renderAll();loadCloud()}
 $('#enter').addEventListener('click',()=>{if($('#pin').value===PIN)unlock();else $('#loginError').textContent='PIN incorrecto'});$('#pin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#enter').click()});if(sessionStorage.getItem('pb_unlocked')==='1')unlock();
 </script>
 </body></html>
