@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#08111f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Plan Borja · Ciclo 05/10/2026</title>
+<title>Plan Borja · Ciclo 05/10/2026 · v33</title>
 <style>
 :root{
   --bg:#08111f;--bg2:#0b1628;--card:#101d31;--card2:#14243c;--line:#243a5d;
@@ -29,9 +29,18 @@ body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bot
 @media(max-width:900px){.quick-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:24px}}
 @media(max-width:600px){.shell{padding:12px 10px 88px}.topbar{align-items:flex-start}.brand b{font-size:17px}.sync{max-width:150px;overflow:hidden;text-overflow:ellipsis}.hero{padding:18px}.hero h1{font-size:22px}.grid{grid-template-columns:1fr 1fr}.week-metrics{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr 1fr}.fields{grid-template-columns:1fr 1fr}input,select{font-size:16px}}
 
+
+.exercise-list{display:grid;gap:12px}.exercise-entry{background:linear-gradient(180deg,#101f35,#0d192b);border:1px solid var(--line);border-radius:17px;padding:14px}.exercise-entry-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.exercise-entry .ex-name{font-size:15px}.exercise-target{font-size:11px;color:#c9d5e8;font-weight:800;text-align:right;white-space:nowrap;background:#0a1728;border:1px solid #203957;border-radius:10px;padding:7px 9px}.series-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.series-card{background:#0b1728;border:1px solid #203957;border-radius:13px;padding:10px}.series-title{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8fb8e7;font-weight:1000;margin-bottom:8px}.series-fields{display:grid;grid-template-columns:1fr 1fr;gap:7px}.series-fields label span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:900;margin:0 0 4px 2px}.series-fields input{width:100%;background:#13233b;border:1px solid #2b4469;color:#fff;border-radius:9px;padding:10px;text-align:center;font-size:16px;font-weight:900;outline:none}.series-fields input:focus{border-color:var(--accent);box-shadow:0 0 0 2px #5da8ff1f}.series-prev{font-size:10px;color:#72d8a6;margin-top:7px;line-height:1.35}.series-helper{font-size:10px;color:var(--muted);margin-top:9px}.exercise-entry:focus-within{border-color:#3f6595}
 .composition-note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.55}.bia-form{grid-template-columns:repeat(4,minmax(0,1fr))}.history .delta{display:block;margin-top:3px;font-size:10px;font-weight:900}.history .delta.up{color:#ff7b88}.history .delta.down{color:#62d99a}.history .delta.flat{color:var(--faint)}.comp-latest .delta{font-size:11px;font-weight:900}.comp-latest .delta.up{color:#ff7b88}.comp-latest .delta.down{color:#62d99a}.comp-latest .delta.flat{color:var(--faint)}
 @media(max-width:900px){.bia-form{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.bia-form{grid-template-columns:1fr 1fr}}
 
+
+@media(max-width:720px){
+  .exercise-entry-head{display:block}.exercise-target{display:inline-block;text-align:left;margin-top:8px;white-space:normal}.series-grid{grid-template-columns:1fr}.series-card{padding:12px}.series-title{font-size:11px}.series-fields{grid-template-columns:1fr 1fr}.workout-table-wrap{display:none}
+}
+@media(max-width:460px){
+  .series-fields{grid-template-columns:1fr}.series-fields input{font-size:18px;padding:12px}.exercise-entry{padding:12px}.exercise-entry .ex-name{font-size:16px}.series-card{border-radius:14px}.quick-grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.comp-latest{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -182,14 +191,16 @@ function ensureCompositionHistory(root){
     '2026-09-04':{date:'2026-09-04',weight:'93.3',neck:'43.2',arm:'37.5',waist:'99.0',abdomen:'103.5',hip:'94.4',thigh:'62.5'},
     '2026-09-11':{date:'2026-09-11',weight:'92.95',abdomen:'103.5'},
     '2026-09-18':{date:'2026-09-18',weight:'92.0',neck:'43.1',arm:'39.5',waist:'100.0',abdomen:'103.0',hip:'95.2',thigh:'61.5'},
-    '2026-10-02':{date:'2026-10-02',weight:'92.5',neck:'43.5',arm:'37.5',waist:'99.5',abdomen:'101.5',hip:'94.5',thigh:'61.5'}
+    '2026-10-02':{date:'2026-10-02',weight:'92.5',neck:'43.5',arm:'37.5',waist:'99.5',abdomen:'101.5',hip:'94.5',thigh:'61.5'},
+    '2026-10-09':{date:'2026-10-09',weight:'90.15',neck:'43.5',arm:'36.0',waist:'98.5',abdomen:'97.3',hip:'94.5',thigh:'61.3'}
   };
   for(const [d,r] of Object.entries(manual))root.manualMeasurementsV2[d]=mergeMissingRecord(root.manualMeasurementsV2[d],{...r,ts:new Date(d+'T09:30:00+01:00').getTime()});
   const bia={
     '2026-09-04':{date:'2026-09-04',time:'09:33',weight:'93.3',bmi:'31.2',bodyFatPct:'28.3',fatMassKg:'26.4',ffmKg:'66.8',softLeanKg:'63.54',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.2',visceralFat:'13',subcutaneousFatPct:'24.5',subcutaneousFatKg:'22.86',waterPct:'51.7',waterL:'48.2',proteinPct:'16.3',proteinKg:'15.2',bonePct:'3.5',boneKg:'3.27',bmr:'1812',smi:'9.3',whr:'0.95',score:'64.4'},
     '2026-09-11':{date:'2026-09-11',time:'09:33',weight:'92.95',bmi:'31.1',bodyFatPct:'28.2',fatMassKg:'26.21',ffmKg:'66.7',softLeanKg:'63.39',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.4',visceralFat:'13',subcutaneousFatPct:'24.3',subcutaneousFatKg:'22.59',waterPct:'51.9',waterL:'48.2',proteinPct:'16.4',proteinKg:'15.2',bonePct:'3.6',boneKg:'3.35',bmr:'1811',smi:'9.2',whr:'0.95',score:'64.7'},
     '2026-09-18':{date:'2026-09-18',time:'09:45',weight:'92.05',bmi:'30.8',bodyFatPct:'27.7',fatMassKg:'25.50',ffmKg:'66.5',softLeanKg:'63.24',skeletalMuscleKg:'42.9',skeletalMusclePct:'46.6',muscleMassPct:'68.7',visceralFat:'13',subcutaneousFatPct:'23.9',subcutaneousFatKg:'22.00',waterPct:'52.1',waterL:'48.0',proteinPct:'16.4',proteinKg:'15.1',bonePct:'3.6',boneKg:'3.31',bmr:'1805',smi:'9.2',whr:'0.95',score:'65.3'},
-    '2026-10-02':{date:'2026-10-02',time:'09:32',weight:'92.5',bmi:'30.9',bodyFatPct:'27.9',fatMassKg:'25.81',ffmKg:'66.7',softLeanKg:'63.27',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.6',muscleMassPct:'68.4',visceralFat:'13',subcutaneousFatPct:'24.1',subcutaneousFatKg:'22.29',waterPct:'52.0',waterL:'48.1',proteinPct:'16.3',proteinKg:'15.1',bonePct:'3.6',boneKg:'3.33',bmr:'1810',smi:'9.2',whr:'0.95',score:'65.1'}
+    '2026-10-02':{date:'2026-10-02',time:'09:32',weight:'92.5',bmi:'30.9',bodyFatPct:'27.9',fatMassKg:'25.81',ffmKg:'66.7',softLeanKg:'63.27',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.6',muscleMassPct:'68.4',visceralFat:'13',subcutaneousFatPct:'24.1',subcutaneousFatKg:'22.29',waterPct:'52.0',waterL:'48.1',proteinPct:'16.3',proteinKg:'15.1',bonePct:'3.6',boneKg:'3.33',bmr:'1810',smi:'9.2',whr:'0.95',score:'65.1'},
+    '2026-10-09':{date:'2026-10-09',time:'11:07',weight:'90.15',bmi:'30.1',bodyFatPct:'26.7',fatMassKg:'24.07',ffmKg:'66.1',softLeanKg:'62.83',skeletalMuscleKg:'42.6',skeletalMusclePct:'47.3',muscleMassPct:'69.7',visceralFat:'12',subcutaneousFatPct:'23.2',subcutaneousFatKg:'20.91',waterPct:'52.8',waterL:'47.6',proteinPct:'16.6',proteinKg:'15.0',bonePct:'3.7',boneKg:'3.34',bmr:'1797',smi:'9.0',whr:'0.94',score:'66.8',note:'Referencia Arboleaf del 09/10/2026 a las 11:07.'}
   };
   for(const [d,r] of Object.entries(bia))root.bodyCompositionLog[d]=mergeMissingRecord(root.bodyCompositionLog[d],{...r,ts:new Date(d+'T09:32:00+01:00').getTime()});
   return root;
@@ -231,9 +242,24 @@ function activeMetric(m,k){return has(m[k])?num(m[k]):0}
 function dayTotals(m){const walk=m.walked?activeMetric(m,'walkTotalKcal'):0,extra=m.extraGym?activeMetric(m,'extraGymKcal'):0,gym=activeMetric(m,'gymTotalKcal');return {gym,walk,extra,total:gym+walk+extra,active:activeMetric(m,'gymActiveKcal')+(m.walked?activeMetric(m,'walkActiveKcal'):0)}}
 function metricCard(label,value,sub=''){return `<div class="metric"><div class="label">${label}</div><div class="value">${value}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`}
 function renderDaySummary(){const m=metricObj(),t=dayTotals(m);$('#daySummary').innerHTML=metricCard('Kcal totales',t.total?Math.round(t.total)+' kcal':'—','Gym + caminata + extra')+metricCard('Kcal activas',t.active?Math.round(t.active)+' kcal':'—')+metricCard('Caminata',m.walked?(has(m.walkMin)?m.walkMin+' min':'Sí'):'No')+metricCard('Gym extra',m.extraGym?(has(m.extraGymKcal)?m.extraGymKcal+' kcal':'Sí'):'No')}
-function renderWorkout(){const box=$('#workout'),list=ROUTINE[cycle.currentDay]||[];if(!list.length){box.innerHTML=`<div class="card weekend-empty"><b>Día sin rutina programada</b>Usa las tarjetas de arriba para registrar caminata y, si corresponde, gym adicional.</div>`;return}const curr=trainingDay();const prev=cycle.currentWeek>1?(cycle.training?.[String(cycle.currentWeek-1)]?.[cycle.currentDay]||{}):{};let rows='';list.forEach((ex,ix)=>{const [group,name,sets,rpe,reps]=ex,k=exKey(name),entry=curr[k]||{sets:[]},p=prev[k]||{};let setCells='';for(let s=0;s<3;s++){if(s<sets){const sv=entry.sets?.[s]||{},pv=p.sets?.[s]||{};setCells+=`<td><div class="setpair"><input inputmode="decimal" data-ex="${k}" data-set="${s}" data-field="kg" placeholder="kg" value="${esc(sv.kg||'')}"><input inputmode="numeric" data-ex="${k}" data-set="${s}" data-field="reps" placeholder="rep" value="${esc(sv.reps||'')}"></div>${has(pv.kg)||has(pv.reps)?`<div class="prevline">Ant.: ${esc(pv.kg||'—')} kg · ${esc(pv.reps||'—')} rep</div>`:''}</td>`}else setCells+='<td>—</td>'}rows+=`<tr><td><div class="ex-name">${esc(name)}</div><div class="ex-group">${esc(group)}</div></td><td class="target">${sets} series · RPE ${rpe}<br>${esc(reps)} reps</td>${setCells}</tr>`});box.innerHTML=`<div class="workout-table-wrap"><table class="workout-table"><thead><tr><th>Ejercicio</th><th>Objetivo</th><th>Serie 1</th><th>Serie 2</th><th>Serie 3</th></tr></thead><tbody>${rows}</tbody></table></div>`;$$('[data-ex]').forEach(inp=>inp.addEventListener('input',e=>{const day=trainingDay(),k=e.target.dataset.ex,s=Number(e.target.dataset.set),f=e.target.dataset.field;day[k]=day[k]||{sets:[]};day[k].sets=day[k].sets||[];day[k].sets[s]=day[k].sets[s]||{};day[k].sets[s][f]=e.target.value;day[k].ts=Date.now();queueSave()}))}
-function weekMetrics(w){let gym=0,walk=0,extra=0,active=0,walkMin=0,walkDays=0,extraDays=0,mins=[],maxs=[];for(let i=1;i<=7;i++){const m=cycle.metrics?.[String(w)]?.['d'+i]||{},t=dayTotals(m);gym+=t.gym;walk+=t.walk;extra+=t.extra;active+=t.active;if(m.walked){walkDays++;walkMin+=activeMetric(m,'walkMin')}if(m.extraGym)extraDays++;if(has(m.sleepMin))mins.push(num(m.sleepMin));if(has(m.gymMax))maxs.push(num(m.gymMax))}const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;return {gym,walk,extra,total:gym+walk+extra,active,walkMin,walkDays,extraDays,sleepMin:avg(mins),gymMax:avg(maxs)}}
-function renderSummary(){const box=$('#weekCards');if(!box)return;const m=maxWeek();box.innerHTML='';for(let w=1;w<=m;w++){const x=weekMetrics(w);box.insertAdjacentHTML('beforeend',`<article class="week-card ${w===cycle.currentWeek?'current':''}"><div class="head"><div><h3>Semana ${w}</h3><div class="period">${weekPeriod(w)}</div></div>${w===cycle.currentWeek?'<span class="tag">Activa</span>':''}</div><div class="week-metrics"><div class="week-metric"><span>Gasto total</span><b>${x.total?Math.round(x.total)+' kcal':'—'}</b></div><div class="week-metric"><span>Gym principal</span><b>${x.gym?Math.round(x.gym)+' kcal':'—'}</b></div><div class="week-metric"><span>Caminata</span><b>${x.walk?Math.round(x.walk)+' kcal':'—'}</b></div><div class="week-metric"><span>Gym extra</span><b>${x.extra?Math.round(x.extra)+' kcal':'—'}</b></div><div class="week-metric"><span>Tiempo caminando</span><b>${x.walkMin?Math.round(x.walkMin)+' min':'—'}</b></div><div class="week-metric"><span>Días caminados</span><b>${x.walkDays||0}</b></div><div class="week-metric"><span>Puls. mín. sueño</span><b>${x.sleepMin?Math.round(x.sleepMin)+' lpm':'—'}</b></div><div class="week-metric"><span>Puls. máx. gym</span><b>${x.gymMax?Math.round(x.gymMax)+' lpm':'—'}</b></div></div></article>`)} }
+function renderWorkout(){
+  const box=$('#workout'),list=ROUTINE[cycle.currentDay]||[];
+  if(!list.length){box.innerHTML=`<div class="card weekend-empty"><b>Día sin rutina programada</b>Usa las tarjetas de arriba para registrar caminata y, si corresponde, gym adicional.</div>`;return}
+  const curr=trainingDay();
+  const prev=cycle.currentWeek>1?(cycle.training?.[String(cycle.currentWeek-1)]?.[cycle.currentDay]||{}):{};
+  let cards='';
+  list.forEach((ex,ix)=>{
+    const [group,name,sets,rpe,reps]=ex,k=exKey(name),entry=curr[k]||{sets:[]},p=prev[k]||{};
+    let series='';
+    for(let s=0;s<sets;s++){
+      const sv=entry.sets?.[s]||{},pv=p.sets?.[s]||{};
+      series+=`<div class="series-card"><div class="series-title">Serie ${s+1}</div><div class="series-fields"><label><span>Peso (kg)</span><input inputmode="decimal" data-ex="${k}" data-set="${s}" data-field="kg" placeholder="Ej. 32,5" value="${esc(sv.kg||'')}"></label><label><span>Repeticiones</span><input inputmode="numeric" data-ex="${k}" data-set="${s}" data-field="reps" placeholder="Ej. 8" value="${esc(sv.reps||'')}"></label></div>${has(pv.kg)||has(pv.reps)?`<div class="series-prev">Anterior: ${esc(pv.kg||'—')} kg · ${esc(pv.reps||'—')} rep</div>`:''}</div>`;
+    }
+    cards+=`<article class="exercise-entry"><div class="exercise-entry-head"><div><div class="ex-name">${esc(name)}</div><div class="ex-group">${esc(group)}</div></div><div class="exercise-target">${sets} series · RPE ${rpe}<br>${esc(reps)} reps</div></div><div class="series-grid">${series}</div></article>`;
+  });
+  box.innerHTML=`<div class="exercise-list">${cards}</div>`;
+  $$('[data-ex]').forEach(inp=>inp.addEventListener('input',e=>{const day=trainingDay(),k=e.target.dataset.ex,s=Number(e.target.dataset.set),f=e.target.dataset.field;day[k]=day[k]||{sets:[]};day[k].sets=day[k].sets||[];day[k].sets[s]=day[k].sets[s]||{};day[k].sets[s][f]=e.target.value;day[k].ts=Date.now();queueSave()}));
+}
 function manualRecords(){const map={};Object.values(rootState.weeklyMeasurements||{}).forEach(r=>{if(r&&r.date)map[r.date]={...r}});Object.entries(rootState.manualMeasurementsV2||{}).forEach(([d,r])=>map[d]={...(map[d]||{}),...r,date:d});return Object.values(map).filter(r=>r.date).sort((a,b)=>a.date.localeCompare(b.date))}
 function delta(curr,prev,unit=''){if(!has(curr)||!has(prev))return '';const d=num(curr)-num(prev);if(Math.abs(d)<.001)return `<span class="delta flat">• 0${unit}</span>`;return `<span class="delta ${d>0?'up':'down'}">${d>0?'▲':'▼'} ${Math.abs(d).toLocaleString('es-ES',{maximumFractionDigits:2})}${unit}</span>`}
 function latestCard(label,val,sub=''){return `<div class="metric"><div class="label">${label}</div><div class="value">${val}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`}
