@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#08111f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Plan Borja · Ciclo 05/10/2026 · v33</title>
+<title>Plan Borja · Ciclo 05/10/2026 · v35 recuperación segura</title>
 <style>
 :root{
   --bg:#08111f;--bg2:#0b1628;--card:#101d31;--card2:#14243c;--line:#243a5d;
@@ -41,6 +41,7 @@ body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bot
 @media(max-width:460px){
   .series-fields{grid-template-columns:1fr}.series-fields input{font-size:18px;padding:12px}.exercise-entry{padding:12px}.exercise-entry .ex-name{font-size:16px}.series-card{border-radius:14px}.quick-grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.comp-latest{grid-template-columns:1fr 1fr}
 }
+.cycle-hint{margin-top:10px;color:#8fa7c8;font-size:11px;line-height:1.45}.series-prev{border-top:1px dashed #29415f;padding-top:7px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -54,7 +55,8 @@ body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bot
 
   <section class="panel active" id="panel-training">
     <div class="hero"><div class="hero-kicker">Nueva tabla · Semana 1</div><h1>Empezamos desde cero el 5 de octubre</h1><p>Rutina de lunes a viernes, sábado y domingo para caminata y cualquier sesión extra. Los registros anteriores permanecen en la nube, pero este ciclo empieza limpio.</p><div class="hero-meta"><span class="chip">7 días por semana</span><span class="chip">Gym + caminata separados</span><span class="chip">Gym extra suma al total</span></div></div>
-    <div class="card"><div class="controls"><div class="selectbox"><label>Semana</label><select id="weekSelect"></select></div><button class="btn" id="addWeek">+ Añadir semana</button></div><div class="day-strip" id="dayStrip"></div></div>
+    <div class="card" id="recoveryStatus" style="display:none;border-color:#326e4a;background:#10271d;color:#bff6d0;font-size:12px;line-height:1.5"></div>
+    <div class="card"><div class="controls"><div class="selectbox"><label>Semana</label><select id="weekSelect"></select></div><button class="btn hidden" id="addWeek">+ Añadir semana</button></div><div class="day-strip" id="dayStrip"></div><div class="cycle-hint">Ciclo preparado con 6 semanas. Desde la Semana 6 puedes añadir semanas nuevas. Los pesos y repeticiones existentes se conservan y cada serie muestra el último registro previo disponible.</div></div>
 
     <div class="quick-grid">
       <div class="quick-card" id="mainGymCard"><div class="quick-head"><div><b>Entrenamiento principal</b><small>Solo de lunes a viernes.</small></div></div><div class="fields" id="mainGymFields">
@@ -137,7 +139,8 @@ const PIN='8888';
 const SUPABASE_URL='https://meihciyntpvcvfqqxwqa.supabase.co';
 const SUPABASE_KEY='sb_publishable_BFQkVq8LpHf-CfSDgSZBDg_7JGCyR7a';
 const CLOUD_TABLE='plan_borja_state', CLOUD_ID='main';
-const LOCAL_KEY='plan_borja_oct2026_v32';
+const LOCAL_KEY='plan_borja_oct2026_v35';
+const LEGACY_PRIMARY_KEY='plan_borja_oct2026_v32';
 const CYCLE_KEY='cycle_2026_10_05';
 const START='2026-10-05';
 const DAY_NAMES=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
@@ -160,7 +163,7 @@ const ROUTINE={
  d6:[],d7:[]
 };
 let rootState={};
-let cycle={startDate:START,currentWeek:1,currentDay:'d1',weekCount:1,training:{},metrics:{},createdAt:Date.now()};
+let cycle={startDate:START,currentWeek:1,currentDay:'d1',weekCount:6,training:{},metrics:{},createdAt:Date.now()};
 let saveTimer=null, hydrating=false;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const has=v=>v!==undefined&&v!==null&&String(v).trim()!=='';
@@ -171,10 +174,19 @@ function addDays(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+
 function dayDate(w,idx){return addDays(START,(w-1)*7+idx)}
 function fmtDate(iso){if(!iso)return '—';const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}
 function weekPeriod(w){return `${fmtDate(dayDate(w,0))} – ${fmtDate(dayDate(w,6))}`}
-function maxWeek(){return Math.max(1,cycle.weekCount||1,...Object.keys(cycle.training||{}).map(Number),...Object.keys(cycle.metrics||{}).map(Number))}
-function ensureCycle(raw){const c=raw&&typeof raw==='object'?raw:{};c.startDate=START;c.currentWeek=Number(c.currentWeek)||1;c.currentDay=c.currentDay||'d1';c.weekCount=Math.max(1,Number(c.weekCount)||1);c.training=c.training||{};c.metrics=c.metrics||{};return c}
+function maxWeek(){return Math.max(6,cycle.weekCount||6,...Object.keys(cycle.training||{}).map(Number),...Object.keys(cycle.metrics||{}).map(Number))}
+function ensureCycle(raw){const c=raw&&typeof raw==='object'?raw:{};c.startDate=START;c.currentWeek=Math.max(1,Number(c.currentWeek)||1);c.currentDay=c.currentDay||'d1';c.weekCount=Math.max(6,Number(c.weekCount)||6);c.training=c.training||{};c.metrics=c.metrics||{};return c}
 function localLoad(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}')}catch{return {}}}
-function localSave(){try{localStorage.setItem(LOCAL_KEY,JSON.stringify({cycle,rootSnapshot:{weeklyMeasurements:rootState.weeklyMeasurements||{},manualMeasurementsV2:rootState.manualMeasurementsV2||{},bodyCompositionLog:rootState.bodyCompositionLog||{}},ts:Date.now()}))}catch{}}
+function allRecoveryCandidates(){
+  const out=[];
+  const add=(key,v)=>{if(!v||typeof v!=='object')return;let c=null;if(v.cycle)c=v.cycle;else if(v[CYCLE_KEY])c=v[CYCLE_KEY];else if(v.data?.[CYCLE_KEY])c=v.data[CYCLE_KEY];if(c&&typeof c==='object')out.push({key,cycle:c,rootSnapshot:v.rootSnapshot||v.data||null,ts:Number(v.ts)||Number(c.localUpdatedAt)||0});};
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k)continue;let raw=null;try{raw=JSON.parse(localStorage.getItem(k)||'null')}catch{};add(k,raw)}}catch{}
+  return out;
+}
+function trainingFilledSets(c){let count=0;for(const w of Object.values(c?.training||{}))for(const d of Object.values(w||{}))for(const ex of Object.values(d||{}))for(const s of (ex?.sets||[]))if(has(s?.kg)||has(s?.reps))count++;return count}
+function metricsFilled(c){let count=0;for(const w of Object.values(c?.metrics||{}))for(const d of Object.values(w||{}))for(const [k,v] of Object.entries(d||{}))if(k!=='ts'&&has(v))count++;return count}
+function localSave(){try{const payload={cycle,rootSnapshot:{weeklyMeasurements:rootState.weeklyMeasurements||{},manualMeasurementsV2:rootState.manualMeasurementsV2||{},bodyCompositionLog:rootState.bodyCompositionLog||{}},ts:Date.now()};localStorage.setItem(LOCAL_KEY,JSON.stringify(payload));if(trainingFilledSets(cycle)>0)localStorage.setItem('plan_borja_oct2026_training_recovery_v35',JSON.stringify(payload))}catch{}}
+
 
 function mergeMissingRecord(target,seed){const out={...(target||{})};for(const [k,v] of Object.entries(seed)){if(!has(out[k])&&has(v))out[k]=v}return out}
 function ensureCompositionHistory(root){
@@ -208,33 +220,44 @@ function ensureCompositionHistory(root){
 function setSync(txt,cls=''){const el=$('#syncBadge');el.textContent=txt;el.className='sync '+cls}
 function headers(extra={}){return {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',...extra}}
 async function loadCloud(){
-  setSync('cargando…');
-  const local=localLoad();
+  setSync('recuperando…');
+  const candidates=allRecoveryCandidates();
+  let cloudCycle=null,cloudRoot={};
   try{
     const url=`${SUPABASE_URL}/rest/v1/${CLOUD_TABLE}?id=eq.${encodeURIComponent(CLOUD_ID)}&select=data,updated_at`;
     const r=await fetch(url,{headers:headers()}); if(!r.ok)throw new Error(await r.text()); const rows=await r.json();
-    rootState=(rows?.[0]?.data&&typeof rows[0].data==='object')?rows[0].data:{};
-    rootState=ensureCompositionHistory(rootState);
-    cycle=ensureCycle(rootState[CYCLE_KEY]);
-    if(local?.cycle){
-      const lc=ensureCycle(local.cycle);
-      if(!rootState[CYCLE_KEY] || (local.ts||0)>(rootState[CYCLE_KEY]?.localUpdatedAt||0)) cycle=mergeCycle(cycle,lc);
-    }
-    rootState[CYCLE_KEY]=cycle; renderAll(); localSave(); setSync('nube ✓','ok');
-  }catch(e){
-    rootState=ensureCompositionHistory({...(local.rootSnapshot||{})}); cycle=ensureCycle(local.cycle); rootState[CYCLE_KEY]=cycle; renderAll(); setSync('modo local','warn');
-  }
+    cloudRoot=(rows?.[0]?.data&&typeof rows[0].data==='object')?rows[0].data:{};
+    cloudRoot=ensureCompositionHistory(cloudRoot);
+    cloudCycle=ensureCycle(cloudRoot[CYCLE_KEY]);
+  }catch(e){cloudRoot={};cloudCycle=null}
+  rootState=ensureCompositionHistory(cloudRoot||{});
+  let merged=ensureCycle(cloudCycle||{});
+  const before=trainingFilledSets(merged);
+  const sorted=candidates.sort((a,b)=>(trainingFilledSets(a.cycle)-trainingFilledSets(b.cycle))||((a.ts||0)-(b.ts||0)));
+  for(const item of sorted)merged=mergeCycleSafe(merged,ensureCycle(item.cycle));
+  merged.weekCount=Math.max(6,merged.weekCount||6);
+  cycle=merged; rootState[CYCLE_KEY]=cycle;
+  renderAll(); localSave();
+  const after=trainingFilledSets(cycle), mcount=metricsFilled(cycle);
+  const rs=$('#recoveryStatus');
+  if(rs){rs.style.display='block';rs.innerHTML=`Recuperación segura: <b>${after} series con peso/repeticiones</b> y <b>${mcount} datos de actividad</b> encontrados entre nube y copias locales.${after>before?' Se han recuperado registros adicionales guardados por versiones anteriores.':''}`}
+  setSync(cloudCycle?'nube + copias ✓':'copias locales ✓','ok');
+  // Nunca sobrescribe la nube al abrir. Solo se guarda cuando el usuario modifica un campo.
 }
-function mergeCycle(a,b){a=ensureCycle(a);b=ensureCycle(b);const out={...a,...b,training:{...a.training},metrics:{...a.metrics}};for(const w of Object.keys(b.training||{})){out.training[w]={...(a.training?.[w]||{}),...(b.training[w]||{})}}for(const w of Object.keys(b.metrics||{})){out.metrics[w]={...(a.metrics?.[w]||{}),...(b.metrics[w]||{})}}out.weekCount=Math.max(a.weekCount||1,b.weekCount||1);return out}
+function mergeSetSafe(a,b){const out={...(a||{})};for(const k of ['kg','reps']){const av=a?.[k],bv=b?.[k];if(!has(av)&&has(bv))out[k]=bv;else if(has(av)&&has(bv)){const at=Number(a?.ts)||0,bt=Number(b?.ts)||0;if(bt>at)out[k]=bv}}return out}
+function mergeExerciseSafe(a,b){const out={...(a||{})};const as=a?.sets||[],bs=b?.sets||[],len=Math.max(as.length,bs.length);out.sets=[];for(let i=0;i<len;i++)out.sets[i]=mergeSetSafe(as[i],bs[i]);out.ts=Math.max(Number(a?.ts)||0,Number(b?.ts)||0)||undefined;return out}
+function mergeTrainingDaySafe(a,b){const out={...(a||{})};const keys=new Set([...Object.keys(a||{}),...Object.keys(b||{})]);for(const k of keys){if(k==='ts')continue;const av=a?.[k],bv=b?.[k];if((av&&typeof av==='object')||(bv&&typeof bv==='object'))out[k]=mergeExerciseSafe(av,bv);else if(!has(av)&&has(bv))out[k]=bv}out.ts=Math.max(Number(a?.ts)||0,Number(b?.ts)||0)||undefined;return out}
+function mergeMetricSafe(a,b){const out={...(a||{})};for(const [k,bv] of Object.entries(b||{})){if(k==='ts')continue;const av=a?.[k];if(!has(av)&&has(bv))out[k]=bv;else if(has(av)&&has(bv)&&(Number(b?.ts)||0)>(Number(a?.ts)||0))out[k]=bv}out.ts=Math.max(Number(a?.ts)||0,Number(b?.ts)||0)||undefined;return out}
+function mergeCycleSafe(a,b){a=ensureCycle(a);b=ensureCycle(b);const out={...a,training:{},metrics:{}};const weeks=new Set([...Object.keys(a.training||{}),...Object.keys(b.training||{})]);for(const w of weeks){out.training[w]={};const days=new Set([...Object.keys(a.training?.[w]||{}),...Object.keys(b.training?.[w]||{})]);for(const d of days)out.training[w][d]=mergeTrainingDaySafe(a.training?.[w]?.[d],b.training?.[w]?.[d])}const mWeeks=new Set([...Object.keys(a.metrics||{}),...Object.keys(b.metrics||{})]);for(const w of mWeeks){out.metrics[w]={};const days=new Set([...Object.keys(a.metrics?.[w]||{}),...Object.keys(b.metrics?.[w]||{})]);for(const d of days)out.metrics[w][d]=mergeMetricSafe(a.metrics?.[w]?.[d],b.metrics?.[w]?.[d])}out.weekCount=Math.max(6,a.weekCount||6,b.weekCount||6,...Object.keys(out.training).map(Number),...Object.keys(out.metrics).map(Number));out.currentWeek=Number(a.currentWeek)||Number(b.currentWeek)||1;out.currentDay=a.currentDay||b.currentDay||'d1';out.localUpdatedAt=Math.max(Number(a.localUpdatedAt)||0,Number(b.localUpdatedAt)||0);return out}
 function queueSave(){localSave();clearTimeout(saveTimer);setSync('guardando…');saveTimer=setTimeout(saveCloud,650)}
 async function saveCloud(){
-  try{cycle.localUpdatedAt=Date.now();rootState[CYCLE_KEY]=cycle;rootState.manualMeasurementsV2=rootState.manualMeasurementsV2||{};const body=JSON.stringify({id:CLOUD_ID,data:rootState,updated_at:new Date().toISOString()});const url=`${SUPABASE_URL}/rest/v1/${CLOUD_TABLE}?on_conflict=id`;const r=await fetch(url,{method:'POST',headers:headers({'Prefer':'resolution=merge-duplicates,return=minimal'}),body});if(!r.ok)throw new Error(await r.text());setSync('guardado ✓','ok');localSave()}catch(e){setSync('guardado local','warn')}
+  try{try{localStorage.setItem('plan_borja_before_cloud_write_v35',JSON.stringify({cycle,ts:Date.now()}))}catch{};cycle.localUpdatedAt=Date.now();rootState[CYCLE_KEY]=cycle;rootState.manualMeasurementsV2=rootState.manualMeasurementsV2||{};const body=JSON.stringify({id:CLOUD_ID,data:rootState,updated_at:new Date().toISOString()});const url=`${SUPABASE_URL}/rest/v1/${CLOUD_TABLE}?on_conflict=id`;const r=await fetch(url,{method:'POST',headers:headers({'Prefer':'resolution=merge-duplicates,return=minimal'}),body});if(!r.ok)throw new Error(await r.text());setSync('guardado ✓','ok');localSave()}catch(e){setSync('guardado local','warn')}
 }
 function metricObj(){const w=String(cycle.currentWeek),d=cycle.currentDay;cycle.metrics[w]=cycle.metrics[w]||{};cycle.metrics[w][d]=cycle.metrics[w][d]||{ts:0};return cycle.metrics[w][d]}
 function trainingDay(w=cycle.currentWeek,d=cycle.currentDay){const ws=String(w);cycle.training[ws]=cycle.training[ws]||{};cycle.training[ws][d]=cycle.training[ws][d]||{};return cycle.training[ws][d]}
 function exKey(name){return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')}
 function switchTab(tab){$$('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$$('.panel').forEach(p=>p.classList.remove('active'));$('#panel-'+tab).classList.add('active');if(tab==='summary')renderSummary();if(tab==='body')renderBody()}
-function renderWeekSelect(){const sel=$('#weekSelect');sel.innerHTML='';const m=maxWeek();cycle.weekCount=Math.max(cycle.weekCount,m);for(let w=1;w<=cycle.weekCount;w++){sel.insertAdjacentHTML('beforeend',`<option value="${w}">Semana ${w} · ${weekPeriod(w)}</option>`)}sel.value=String(cycle.currentWeek)}
+function renderWeekSelect(){const sel=$('#weekSelect');sel.innerHTML='';const m=maxWeek();cycle.weekCount=Math.max(6,cycle.weekCount,m);for(let w=1;w<=cycle.weekCount;w++){sel.insertAdjacentHTML('beforeend',`<option value="${w}">Semana ${w} · ${weekPeriod(w)}</option>`)}sel.value=String(cycle.currentWeek);const add=$('#addWeek');if(add)add.classList.toggle('hidden',!(cycle.currentWeek===cycle.weekCount&&cycle.weekCount>=6))}
 function renderDayStrip(){const box=$('#dayStrip');box.innerHTML=DAY_NAMES.map((n,i)=>{const d='d'+(i+1), weekend=i>=5;return `<button class="day-btn ${weekend?'weekend':''} ${cycle.currentDay===d?'active':''}" data-day="${d}"><b>${n}</b><small>${fmtDate(dayDate(cycle.currentWeek,i))}</small></button>`}).join('')}
 function renderQuick(){const idx=Number(cycle.currentDay.slice(1))-1,weekend=idx>=5,m=metricObj();$('#mainGymCard').classList.toggle('hidden',weekend);$$('[data-metric]').forEach(inp=>{const k=inp.dataset.metric;inp.value=has(m[k])?m[k]:''});$('#walked').checked=!!m.walked;$('#walkToggleUi').classList.toggle('on',!!m.walked);$('#walkFields').classList.toggle('hidden',!m.walked);$('#extraGym').checked=!!m.extraGym;$('#extraToggleUi').classList.toggle('on',!!m.extraGym);$('#extraFields').classList.toggle('hidden',!m.extraGym)}
 function setMetric(k,v){const m=metricObj();m[k]=v;m.ts=Date.now();queueSave();renderDaySummary();renderSummary()}
@@ -242,24 +265,26 @@ function activeMetric(m,k){return has(m[k])?num(m[k]):0}
 function dayTotals(m){const walk=m.walked?activeMetric(m,'walkTotalKcal'):0,extra=m.extraGym?activeMetric(m,'extraGymKcal'):0,gym=activeMetric(m,'gymTotalKcal');return {gym,walk,extra,total:gym+walk+extra,active:activeMetric(m,'gymActiveKcal')+(m.walked?activeMetric(m,'walkActiveKcal'):0)}}
 function metricCard(label,value,sub=''){return `<div class="metric"><div class="label">${label}</div><div class="value">${value}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`}
 function renderDaySummary(){const m=metricObj(),t=dayTotals(m);$('#daySummary').innerHTML=metricCard('Kcal totales',t.total?Math.round(t.total)+' kcal':'—','Gym + caminata + extra')+metricCard('Kcal activas',t.active?Math.round(t.active)+' kcal':'—')+metricCard('Caminata',m.walked?(has(m.walkMin)?m.walkMin+' min':'Sí'):'No')+metricCard('Gym extra',m.extraGym?(has(m.extraGymKcal)?m.extraGymKcal+' kcal':'Sí'):'No')}
+function previousExerciseEntry(week,day,key){for(let w=week-1;w>=1;w--){const rec=cycle.training?.[String(w)]?.[day]?.[key];if(rec&&Array.isArray(rec.sets)&&rec.sets.some(s=>has(s?.kg)||has(s?.reps)))return {week:w,rec};}return null}
 function renderWorkout(){
   const box=$('#workout'),list=ROUTINE[cycle.currentDay]||[];
   if(!list.length){box.innerHTML=`<div class="card weekend-empty"><b>Día sin rutina programada</b>Usa las tarjetas de arriba para registrar caminata y, si corresponde, gym adicional.</div>`;return}
   const curr=trainingDay();
-  const prev=cycle.currentWeek>1?(cycle.training?.[String(cycle.currentWeek-1)]?.[cycle.currentDay]||{}):{};
   let cards='';
   list.forEach((ex,ix)=>{
-    const [group,name,sets,rpe,reps]=ex,k=exKey(name),entry=curr[k]||{sets:[]},p=prev[k]||{};
+    const [group,name,sets,rpe,reps]=ex,k=exKey(name),entry=curr[k]||{sets:[]},prior=previousExerciseEntry(cycle.currentWeek,cycle.currentDay,k),p=prior?.rec||{};
     let series='';
     for(let s=0;s<sets;s++){
       const sv=entry.sets?.[s]||{},pv=p.sets?.[s]||{};
-      series+=`<div class="series-card"><div class="series-title">Serie ${s+1}</div><div class="series-fields"><label><span>Peso (kg)</span><input inputmode="decimal" data-ex="${k}" data-set="${s}" data-field="kg" placeholder="Ej. 32,5" value="${esc(sv.kg||'')}"></label><label><span>Repeticiones</span><input inputmode="numeric" data-ex="${k}" data-set="${s}" data-field="reps" placeholder="Ej. 8" value="${esc(sv.reps||'')}"></label></div>${has(pv.kg)||has(pv.reps)?`<div class="series-prev">Anterior: ${esc(pv.kg||'—')} kg · ${esc(pv.reps||'—')} rep</div>`:''}</div>`;
+      series+=`<div class="series-card"><div class="series-title">Serie ${s+1}</div><div class="series-fields"><label><span>Peso (kg)</span><input inputmode="decimal" data-ex="${k}" data-set="${s}" data-field="kg" placeholder="Ej. 32,5" value="${esc(sv.kg||'')}"></label><label><span>Repeticiones</span><input inputmode="numeric" data-ex="${k}" data-set="${s}" data-field="reps" placeholder="Ej. 8" value="${esc(sv.reps||'')}"></label></div>${has(pv.kg)||has(pv.reps)?`<div class="series-prev">${prior?.week===cycle.currentWeek-1?'Semana anterior':'Último registro · Semana '+prior?.week}: ${esc(has(pv.kg)?pv.kg:'—')} kg · ${esc(has(pv.reps)?pv.reps:'—')} rep</div>`:''}</div>`;
     }
     cards+=`<article class="exercise-entry"><div class="exercise-entry-head"><div><div class="ex-name">${esc(name)}</div><div class="ex-group">${esc(group)}</div></div><div class="exercise-target">${sets} series · RPE ${rpe}<br>${esc(reps)} reps</div></div><div class="series-grid">${series}</div></article>`;
   });
   box.innerHTML=`<div class="exercise-list">${cards}</div>`;
   $$('[data-ex]').forEach(inp=>inp.addEventListener('input',e=>{const day=trainingDay(),k=e.target.dataset.ex,s=Number(e.target.dataset.set),f=e.target.dataset.field;day[k]=day[k]||{sets:[]};day[k].sets=day[k].sets||[];day[k].sets[s]=day[k].sets[s]||{};day[k].sets[s][f]=e.target.value;day[k].ts=Date.now();queueSave()}));
 }
+function weekMetrics(w){let gym=0,walk=0,extra=0,active=0,walkMin=0,walkDays=0,extraDays=0,mins=[],maxs=[];for(let i=1;i<=7;i++){const m=cycle.metrics?.[String(w)]?.['d'+i]||{},tt=dayTotals(m);gym+=tt.gym;walk+=tt.walk;extra+=tt.extra;active+=tt.active;if(m.walked){walkDays++;walkMin+=activeMetric(m,'walkMin')}if(m.extraGym)extraDays++;if(has(m.sleepMin))mins.push(num(m.sleepMin));if(has(m.gymMax))maxs.push(num(m.gymMax))}const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;return {gym,walk,extra,total:gym+walk+extra,active,walkMin,walkDays,extraDays,sleepMin:avg(mins),gymMax:avg(maxs)}}
+function renderSummary(){const box=$('#weekCards');if(!box)return;const m=maxWeek();box.innerHTML='';for(let w=1;w<=m;w++){const x=weekMetrics(w);box.insertAdjacentHTML('beforeend',`<article class="week-card ${w===cycle.currentWeek?'current':''}"><div class="head"><div><h3>Semana ${w}</h3><div class="period">${weekPeriod(w)}</div></div>${w===cycle.currentWeek?'<span class="tag">Activa</span>':''}</div><div class="week-metrics"><div class="week-metric"><span>Gasto total</span><b>${x.total?Math.round(x.total)+' kcal':'—'}</b></div><div class="week-metric"><span>Gym principal</span><b>${x.gym?Math.round(x.gym)+' kcal':'—'}</b></div><div class="week-metric"><span>Caminata</span><b>${x.walk?Math.round(x.walk)+' kcal':'—'}</b></div><div class="week-metric"><span>Gym extra</span><b>${x.extra?Math.round(x.extra)+' kcal':'—'}</b></div><div class="week-metric"><span>Tiempo caminando</span><b>${x.walkMin?Math.round(x.walkMin)+' min':'—'}</b></div><div class="week-metric"><span>Días caminados</span><b>${x.walkDays||0}</b></div><div class="week-metric"><span>Puls. mín. sueño</span><b>${x.sleepMin?Math.round(x.sleepMin)+' lpm':'—'}</b></div><div class="week-metric"><span>Puls. máx. gym</span><b>${x.gymMax?Math.round(x.gymMax)+' lpm':'—'}</b></div></div></article>`)} }
 function manualRecords(){const map={};Object.values(rootState.weeklyMeasurements||{}).forEach(r=>{if(r&&r.date)map[r.date]={...r}});Object.entries(rootState.manualMeasurementsV2||{}).forEach(([d,r])=>map[d]={...(map[d]||{}),...r,date:d});return Object.values(map).filter(r=>r.date).sort((a,b)=>a.date.localeCompare(b.date))}
 function delta(curr,prev,unit=''){if(!has(curr)||!has(prev))return '';const d=num(curr)-num(prev);if(Math.abs(d)<.001)return `<span class="delta flat">• 0${unit}</span>`;return `<span class="delta ${d>0?'up':'down'}">${d>0?'▲':'▼'} ${Math.abs(d).toLocaleString('es-ES',{maximumFractionDigits:2})}${unit}</span>`}
 function latestCard(label,val,sub=''){return `<div class="metric"><div class="label">${label}</div><div class="value">${val}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`}
@@ -284,7 +309,7 @@ function renderAll(){renderWeekSelect();renderDayStrip();renderQuick();renderDay
 function bind(){
   $$('.tabs button').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
   $('#weekSelect').addEventListener('change',e=>{cycle.currentWeek=Number(e.target.value);renderAll();queueSave()});
-  $('#addWeek').addEventListener('click',()=>{cycle.weekCount=maxWeek()+1;cycle.currentWeek=cycle.weekCount;cycle.currentDay='d1';renderAll();queueSave()});
+  $('#addWeek').addEventListener('click',()=>{cycle.weekCount=Math.max(6,cycle.weekCount||6)+1;cycle.currentWeek=cycle.weekCount;cycle.currentDay='d1';renderAll();queueSave()});
   $('#dayStrip').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;cycle.currentDay=b.dataset.day;renderAll();queueSave()});
   $$('[data-metric]').forEach(inp=>inp.addEventListener('input',e=>setMetric(e.target.dataset.metric,e.target.value)));
   $('#walked').addEventListener('change',e=>{const m=metricObj();m.walked=e.target.checked;m.ts=Date.now();if(!m.walked){/* conserva valores, pero no se suman */}renderQuick();renderDaySummary();renderSummary();queueSave()});
@@ -295,7 +320,7 @@ function bind(){
   $('#biaDate')?.addEventListener('change',e=>{const r=rootState.bodyCompositionLog?.[e.target.value]||{};$$('[data-bia]').forEach(i=>i.value=has(r[i.dataset.bia])?r[i.dataset.bia]:'')});
   window.addEventListener('scroll',()=>$('#goTop').classList.toggle('show',scrollY>600));$('#goTop').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
 }
-function unlock(){sessionStorage.setItem('pb_unlocked','1');$('#login').classList.add('hidden');$('#app').classList.remove('hidden');rootState=ensureCompositionHistory(rootState);bind();renderAll();loadCloud()}
+function unlock(){sessionStorage.setItem('pb_unlocked','1');$('#login').classList.add('hidden');$('#app').classList.remove('hidden');rootState=ensureCompositionHistory(rootState);bind();setSync('cargando…');loadCloud()}
 $('#enter').addEventListener('click',()=>{if($('#pin').value===PIN)unlock();else $('#loginError').textContent='PIN incorrecto'});$('#pin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#enter').click()});if(sessionStorage.getItem('pb_unlocked')==='1')unlock();
 </script>
 </body></html>
