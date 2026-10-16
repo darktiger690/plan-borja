@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#08111f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Plan Borja · Ciclo 05/10/2026 · v35 recuperación segura</title>
+<title>Plan Borja · Ciclo 05/10/2026 · v36 recuperación segura</title>
 <style>
 :root{
   --bg:#08111f;--bg2:#0b1628;--card:#101d31;--card2:#14243c;--line:#243a5d;
@@ -45,16 +45,13 @@ body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bot
 </style>
 </head>
 <body>
-<div id="login">
-  <div class="login-box"><h1>Plan Borja</h1><p>Nuevo ciclo de entrenamiento desde el 5 de octubre de 2026.</p><div class="login-row"><input id="pin" type="password" inputmode="numeric" placeholder="PIN"><button id="enter">Entrar</button></div><div class="login-error" id="loginError"></div></div>
-</div>
-<div class="app hidden" id="app">
+<div class="app" id="app">
 <div class="shell" id="top">
   <header class="topbar"><div class="brand"><div class="logo">PB</div><div><small>Ciclo nuevo</small><b>Plan Borja · 05/10</b></div></div><div class="sync" id="syncBadge">local</div></header>
   <nav class="tabs"><button class="active" data-tab="training">Entrenamiento</button><button data-tab="summary">Resumen</button><button data-tab="body">Composición</button></nav>
 
   <section class="panel active" id="panel-training">
-    <div class="hero"><div class="hero-kicker">Nueva tabla · Semana 1</div><h1>Empezamos desde cero el 5 de octubre</h1><p>Rutina de lunes a viernes, sábado y domingo para caminata y cualquier sesión extra. Los registros anteriores permanecen en la nube, pero este ciclo empieza limpio.</p><div class="hero-meta"><span class="chip">7 días por semana</span><span class="chip">Gym + caminata separados</span><span class="chip">Gym extra suma al total</span></div></div>
+    <div class="hero"><div class="hero-kicker">Nueva tabla · Semana 1</div><h1>Empezamos desde cero el 5 de octubre</h1><p>Rutina de lunes a viernes, sábado y domingo para caminata y cualquier sesión extra. Los registros anteriores se conservan en las copias locales del navegador; este ciclo empieza limpio.</p><div class="hero-meta"><span class="chip">7 días por semana</span><span class="chip">Gym + caminata separados</span><span class="chip">Gym extra suma al total</span></div></div>
     <div class="card" id="recoveryStatus" style="display:none;border-color:#326e4a;background:#10271d;color:#bff6d0;font-size:12px;line-height:1.5"></div>
     <div class="card"><div class="controls"><div class="selectbox"><label>Semana</label><select id="weekSelect"></select></div><button class="btn hidden" id="addWeek">+ Añadir semana</button></div><div class="day-strip" id="dayStrip"></div><div class="cycle-hint">Ciclo preparado con 6 semanas. Desde la Semana 6 puedes añadir semanas nuevas. Los pesos y repeticiones existentes se conservan y cada serie muestra el último registro previo disponible.</div></div>
 
@@ -135,11 +132,7 @@ body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bot
 <button class="floating-top" id="goTop">↑ Arriba</button>
 </div>
 <script>
-const PIN='8888';
-const SUPABASE_URL='https://meihciyntpvcvfqqxwqa.supabase.co';
-const SUPABASE_KEY='sb_publishable_BFQkVq8LpHf-CfSDgSZBDg_7JGCyR7a';
-const CLOUD_TABLE='plan_borja_state', CLOUD_ID='main';
-const LOCAL_KEY='plan_borja_oct2026_v35';
+const LOCAL_KEY='plan_borja_oct2026_v36';
 const LEGACY_PRIMARY_KEY='plan_borja_oct2026_v32';
 const CYCLE_KEY='cycle_2026_10_05';
 const START='2026-10-05';
@@ -204,7 +197,8 @@ function ensureCompositionHistory(root){
     '2026-09-11':{date:'2026-09-11',weight:'92.95',abdomen:'103.5'},
     '2026-09-18':{date:'2026-09-18',weight:'92.0',neck:'43.1',arm:'39.5',waist:'100.0',abdomen:'103.0',hip:'95.2',thigh:'61.5'},
     '2026-10-02':{date:'2026-10-02',weight:'92.5',neck:'43.5',arm:'37.5',waist:'99.5',abdomen:'101.5',hip:'94.5',thigh:'61.5'},
-    '2026-10-09':{date:'2026-10-09',weight:'90.15',neck:'43.5',arm:'36.0',waist:'98.5',abdomen:'97.3',hip:'94.5',thigh:'61.3'}
+    '2026-10-09':{date:'2026-10-09',weight:'90.15',neck:'43.5',arm:'36.0',waist:'98.5',abdomen:'97.3',hip:'94.5',thigh:'61.3'},
+    '2026-10-16':{date:'2026-10-16',weight:'88.45',neck:'42.3',arm:'35.7',waist:'100.6',abdomen:'97.5',hip:'92.5'}
   };
   for(const [d,r] of Object.entries(manual))root.manualMeasurementsV2[d]=mergeMissingRecord(root.manualMeasurementsV2[d],{...r,ts:new Date(d+'T09:30:00+01:00').getTime()});
   const bia={
@@ -212,37 +206,38 @@ function ensureCompositionHistory(root){
     '2026-09-11':{date:'2026-09-11',time:'09:33',weight:'92.95',bmi:'31.1',bodyFatPct:'28.2',fatMassKg:'26.21',ffmKg:'66.7',softLeanKg:'63.39',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.4',visceralFat:'13',subcutaneousFatPct:'24.3',subcutaneousFatKg:'22.59',waterPct:'51.9',waterL:'48.2',proteinPct:'16.4',proteinKg:'15.2',bonePct:'3.6',boneKg:'3.35',bmr:'1811',smi:'9.2',whr:'0.95',score:'64.7'},
     '2026-09-18':{date:'2026-09-18',time:'09:45',weight:'92.05',bmi:'30.8',bodyFatPct:'27.7',fatMassKg:'25.50',ffmKg:'66.5',softLeanKg:'63.24',skeletalMuscleKg:'42.9',skeletalMusclePct:'46.6',muscleMassPct:'68.7',visceralFat:'13',subcutaneousFatPct:'23.9',subcutaneousFatKg:'22.00',waterPct:'52.1',waterL:'48.0',proteinPct:'16.4',proteinKg:'15.1',bonePct:'3.6',boneKg:'3.31',bmr:'1805',smi:'9.2',whr:'0.95',score:'65.3'},
     '2026-10-02':{date:'2026-10-02',time:'09:32',weight:'92.5',bmi:'30.9',bodyFatPct:'27.9',fatMassKg:'25.81',ffmKg:'66.7',softLeanKg:'63.27',skeletalMuscleKg:'43.1',skeletalMusclePct:'46.6',muscleMassPct:'68.4',visceralFat:'13',subcutaneousFatPct:'24.1',subcutaneousFatKg:'22.29',waterPct:'52.0',waterL:'48.1',proteinPct:'16.3',proteinKg:'15.1',bonePct:'3.6',boneKg:'3.33',bmr:'1810',smi:'9.2',whr:'0.95',score:'65.1'},
-    '2026-10-09':{date:'2026-10-09',time:'11:07',weight:'90.15',bmi:'30.1',bodyFatPct:'26.7',fatMassKg:'24.07',ffmKg:'66.1',softLeanKg:'62.83',skeletalMuscleKg:'42.6',skeletalMusclePct:'47.3',muscleMassPct:'69.7',visceralFat:'12',subcutaneousFatPct:'23.2',subcutaneousFatKg:'20.91',waterPct:'52.8',waterL:'47.6',proteinPct:'16.6',proteinKg:'15.0',bonePct:'3.7',boneKg:'3.34',bmr:'1797',smi:'9.0',whr:'0.94',score:'66.8',note:'Referencia Arboleaf del 09/10/2026 a las 11:07.'}
+    '2026-10-09':{date:'2026-10-09',time:'11:07',weight:'90.15',bmi:'30.1',bodyFatPct:'26.7',fatMassKg:'24.07',ffmKg:'66.1',softLeanKg:'62.83',skeletalMuscleKg:'42.6',skeletalMusclePct:'47.3',muscleMassPct:'69.7',visceralFat:'12',subcutaneousFatPct:'23.2',subcutaneousFatKg:'20.91',waterPct:'52.8',waterL:'47.6',proteinPct:'16.6',proteinKg:'15.0',bonePct:'3.7',boneKg:'3.34',bmr:'1797',smi:'9.0',whr:'0.94',score:'66.8',note:'Referencia Arboleaf del 09/10/2026 a las 11:07.'},
+    '2026-10-16':{date:'2026-10-16',time:'09:34',weight:'88.45',bmi:'29.6',bodyFatPct:'25.9',fatMassKg:'22.91',ffmKg:'65.5',softLeanKg:'62.27',skeletalMuscleKg:'42.3',skeletalMusclePct:'47.8',muscleMassPct:'70.4',visceralFat:'12',subcutaneousFatPct:'22.3',subcutaneousFatKg:'19.72',waterPct:'53.5',waterL:'47.3',proteinPct:'16.8',proteinKg:'14.9',bonePct:'3.7',boneKg:'3.27',bmr:'1786',smi:'8.9',whr:'0.93',score:'67.9',note:'Referencia Arboleaf del 16/10/2026 a las 09:34.'}
   };
   for(const [d,r] of Object.entries(bia))root.bodyCompositionLog[d]=mergeMissingRecord(root.bodyCompositionLog[d],{...r,ts:new Date(d+'T09:32:00+01:00').getTime()});
   return root;
 }
 function setSync(txt,cls=''){const el=$('#syncBadge');el.textContent=txt;el.className='sync '+cls}
-function headers(extra={}){return {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',...extra}}
+function mergeRootSnapshotSafe(base,snap){
+  base=base&&typeof base==='object'?base:{};snap=snap&&typeof snap==='object'?snap:{};
+  base.manualMeasurementsV2=base.manualMeasurementsV2||{};base.bodyCompositionLog=base.bodyCompositionLog||{};
+  for(const bucket of ['manualMeasurementsV2','bodyCompositionLog']){
+    const src=snap[bucket];if(!src||typeof src!=='object')continue;
+    for(const [date,rec] of Object.entries(src)){
+      const cur=base[bucket][date]||{};const ct=Number(cur.ts)||0,rt=Number(rec?.ts)||0;
+      base[bucket][date]=rt>=ct?{...cur,...rec}:mergeMissingRecord(cur,rec||{});
+    }
+  }
+  return base;
+}
 async function loadCloud(){
-  setSync('recuperando…');
+  setSync('recuperando local…');
   const candidates=allRecoveryCandidates();
-  let cloudCycle=null,cloudRoot={};
-  try{
-    const url=`${SUPABASE_URL}/rest/v1/${CLOUD_TABLE}?id=eq.${encodeURIComponent(CLOUD_ID)}&select=data,updated_at`;
-    const r=await fetch(url,{headers:headers()}); if(!r.ok)throw new Error(await r.text()); const rows=await r.json();
-    cloudRoot=(rows?.[0]?.data&&typeof rows[0].data==='object')?rows[0].data:{};
-    cloudRoot=ensureCompositionHistory(cloudRoot);
-    cloudCycle=ensureCycle(cloudRoot[CYCLE_KEY]);
-  }catch(e){cloudRoot={};cloudCycle=null}
-  rootState=ensureCompositionHistory(cloudRoot||{});
-  let merged=ensureCycle(cloudCycle||{});
-  const before=trainingFilledSets(merged);
-  const sorted=candidates.sort((a,b)=>(trainingFilledSets(a.cycle)-trainingFilledSets(b.cycle))||((a.ts||0)-(b.ts||0)));
-  for(const item of sorted)merged=mergeCycleSafe(merged,ensureCycle(item.cycle));
-  merged.weekCount=Math.max(6,merged.weekCount||6);
-  cycle=merged; rootState[CYCLE_KEY]=cycle;
-  renderAll(); localSave();
-  const after=trainingFilledSets(cycle), mcount=metricsFilled(cycle);
-  const rs=$('#recoveryStatus');
-  if(rs){rs.style.display='block';rs.innerHTML=`Recuperación segura: <b>${after} series con peso/repeticiones</b> y <b>${mcount} datos de actividad</b> encontrados entre nube y copias locales.${after>before?' Se han recuperado registros adicionales guardados por versiones anteriores.':''}`}
-  setSync(cloudCycle?'nube + copias ✓':'copias locales ✓','ok');
-  // Nunca sobrescribe la nube al abrir. Solo se guarda cuando el usuario modifica un campo.
+  let recoveredRoot={};
+  for(const item of [...candidates].sort((a,b)=>(a.ts||0)-(b.ts||0)))if(item.rootSnapshot)recoveredRoot=mergeRootSnapshotSafe(recoveredRoot,item.rootSnapshot);
+  rootState=ensureCompositionHistory(recoveredRoot);
+  let merged=ensureCycle({});
+  for(const item of [...candidates].sort((a,b)=>(trainingFilledSets(a.cycle)-trainingFilledSets(b.cycle))||((a.ts||0)-(b.ts||0))))merged=mergeCycleSafe(merged,ensureCycle(item.cycle));
+  merged.weekCount=Math.max(6,merged.weekCount||6);cycle=merged;rootState[CYCLE_KEY]=cycle;
+  renderAll();localSave();
+  const after=trainingFilledSets(cycle),mcount=metricsFilled(cycle),rs=$('#recoveryStatus');
+  if(rs){rs.style.display='block';rs.innerHTML=`Datos locales: <b>${after} series con peso/repeticiones</b> y <b>${mcount} datos de actividad</b> recuperados de las copias del navegador.`}
+  setSync('local ✓','ok');
 }
 function mergeSetSafe(a,b){const out={...(a||{})};for(const k of ['kg','reps']){const av=a?.[k],bv=b?.[k];if(!has(av)&&has(bv))out[k]=bv;else if(has(av)&&has(bv)){const at=Number(a?.ts)||0,bt=Number(b?.ts)||0;if(bt>at)out[k]=bv}}return out}
 function mergeExerciseSafe(a,b){const out={...(a||{})};const as=a?.sets||[],bs=b?.sets||[],len=Math.max(as.length,bs.length);out.sets=[];for(let i=0;i<len;i++)out.sets[i]=mergeSetSafe(as[i],bs[i]);out.ts=Math.max(Number(a?.ts)||0,Number(b?.ts)||0)||undefined;return out}
@@ -251,7 +246,10 @@ function mergeMetricSafe(a,b){const out={...(a||{})};for(const [k,bv] of Object.
 function mergeCycleSafe(a,b){a=ensureCycle(a);b=ensureCycle(b);const out={...a,training:{},metrics:{}};const weeks=new Set([...Object.keys(a.training||{}),...Object.keys(b.training||{})]);for(const w of weeks){out.training[w]={};const days=new Set([...Object.keys(a.training?.[w]||{}),...Object.keys(b.training?.[w]||{})]);for(const d of days)out.training[w][d]=mergeTrainingDaySafe(a.training?.[w]?.[d],b.training?.[w]?.[d])}const mWeeks=new Set([...Object.keys(a.metrics||{}),...Object.keys(b.metrics||{})]);for(const w of mWeeks){out.metrics[w]={};const days=new Set([...Object.keys(a.metrics?.[w]||{}),...Object.keys(b.metrics?.[w]||{})]);for(const d of days)out.metrics[w][d]=mergeMetricSafe(a.metrics?.[w]?.[d],b.metrics?.[w]?.[d])}out.weekCount=Math.max(6,a.weekCount||6,b.weekCount||6,...Object.keys(out.training).map(Number),...Object.keys(out.metrics).map(Number));out.currentWeek=Number(a.currentWeek)||Number(b.currentWeek)||1;out.currentDay=a.currentDay||b.currentDay||'d1';out.localUpdatedAt=Math.max(Number(a.localUpdatedAt)||0,Number(b.localUpdatedAt)||0);return out}
 function queueSave(){localSave();clearTimeout(saveTimer);setSync('guardando…');saveTimer=setTimeout(saveCloud,650)}
 async function saveCloud(){
-  try{try{localStorage.setItem('plan_borja_before_cloud_write_v35',JSON.stringify({cycle,ts:Date.now()}))}catch{};cycle.localUpdatedAt=Date.now();rootState[CYCLE_KEY]=cycle;rootState.manualMeasurementsV2=rootState.manualMeasurementsV2||{};const body=JSON.stringify({id:CLOUD_ID,data:rootState,updated_at:new Date().toISOString()});const url=`${SUPABASE_URL}/rest/v1/${CLOUD_TABLE}?on_conflict=id`;const r=await fetch(url,{method:'POST',headers:headers({'Prefer':'resolution=merge-duplicates,return=minimal'}),body});if(!r.ok)throw new Error(await r.text());setSync('guardado ✓','ok');localSave()}catch(e){setSync('guardado local','warn')}
+  try{
+    try{localStorage.setItem('plan_borja_before_local_write_v36',JSON.stringify({cycle,rootSnapshot:{manualMeasurementsV2:rootState.manualMeasurementsV2||{},bodyCompositionLog:rootState.bodyCompositionLog||{}},ts:Date.now()}))}catch{}
+    cycle.localUpdatedAt=Date.now();rootState[CYCLE_KEY]=cycle;localSave();setSync('guardado local ✓','ok');
+  }catch(e){setSync('error al guardar','warn')}
 }
 function metricObj(){const w=String(cycle.currentWeek),d=cycle.currentDay;cycle.metrics[w]=cycle.metrics[w]||{};cycle.metrics[w][d]=cycle.metrics[w][d]||{ts:0};return cycle.metrics[w][d]}
 function trainingDay(w=cycle.currentWeek,d=cycle.currentDay){const ws=String(w);cycle.training[ws]=cycle.training[ws]||{};cycle.training[ws][d]=cycle.training[ws][d]||{};return cycle.training[ws][d]}
@@ -320,7 +318,9 @@ function bind(){
   $('#biaDate')?.addEventListener('change',e=>{const r=rootState.bodyCompositionLog?.[e.target.value]||{};$$('[data-bia]').forEach(i=>i.value=has(r[i.dataset.bia])?r[i.dataset.bia]:'')});
   window.addEventListener('scroll',()=>$('#goTop').classList.toggle('show',scrollY>600));$('#goTop').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
 }
-function unlock(){sessionStorage.setItem('pb_unlocked','1');$('#login').classList.add('hidden');$('#app').classList.remove('hidden');rootState=ensureCompositionHistory(rootState);bind();setSync('cargando…');loadCloud()}
-$('#enter').addEventListener('click',()=>{if($('#pin').value===PIN)unlock();else $('#loginError').textContent='PIN incorrecto'});$('#pin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#enter').click()});if(sessionStorage.getItem('pb_unlocked')==='1')unlock();
+function unlock(){
+  $('#app')?.classList.remove('hidden');rootState=ensureCompositionHistory(rootState);bind();setSync('cargando local…');loadCloud();
+}
+unlock();
 </script>
 </body></html>
